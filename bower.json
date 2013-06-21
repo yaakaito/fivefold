@@ -1,0 +1,8 @@
+{
+  "name": "project",
+  "version": "0.0.1",
+  "dependencies": {
+    "katana": "git://github.com/yaakaito/katana.git#~0.0.1",
+    "jquery": "https://github.com/yaakaito/jquery.katana"
+  }
+}
