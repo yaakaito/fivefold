@@ -1,8 +1,11 @@
 {
-  "name": "project",
+  "name": "fivehold-core",
   "version": "0.0.1",
   "dependencies": {
-    "katana": "git://github.com/yaakaito/katana.git#~0.0.1",
-    "jquery": "https://github.com/yaakaito/jquery.katana"
+    "monapt": "git://github.com/yaakaito/monapt.git#~0.1.0"
+  },
+  "devDependencies": {
+    "jquery": "~2.0.2",
+    "zepto": "~1.0.0"
   }
 }
