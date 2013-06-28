@@ -6,6 +6,7 @@
         "test/**/*.ts"
     ],
     "serve_files" : [
+        "components/monapt/monapt.js",
         "compiled/src/**/*.js",
         "compiled/test/**/*.js"
     ]
