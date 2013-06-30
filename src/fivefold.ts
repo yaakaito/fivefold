@@ -60,12 +60,11 @@ module fivefold {
         }
     }
 
-    var Memory = 1;
     class ActionRepository {
         private static sharedInstance = new ActionRepository();
         private actions: Object = {};
 
-        static of(type: number): ActionRepository {
+        static ofMemory(): ActionRepository {
             return this.sharedInstance;
         }
 
@@ -92,7 +91,7 @@ module fivefold {
 
         private dispatchErrorTry(): monapt.Try<Controller> {
             return monapt.Try(() => {
-                return ActionRepository.of(Memory).actionForRoute('dispatchFailure')
+                return ActionRepository.ofMemory().actionForRoute('dispatchFailure')
                         .map(action => action.pathOrName).get();
             }).flatMap(pathOrName => this.realizer.realizeTry(pathOrName));
         }
