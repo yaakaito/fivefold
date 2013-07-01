@@ -40,8 +40,36 @@ module fivefold {
         suffix = 'Controller';
     }
 
+    export class View {
+        render() {
+
+        }
+    }
+
+    export class Layout extends View {
+
+    }
+
+    export class ActionFuture<V extends View> extends monapt.Future<V> { }
+
     export class Controller {
 
+        public layout: Layout;
+
+        dispatch(route: Route) {
+            var future = <ActionFuture<View>>this[route.method]();
+            future.onComplete(view => {
+                view.match({
+                    Success: view => {
+
+                    },
+                    Failure: error => {
+
+                    }    
+                });
+            });
+
+        }
     }
 
     export class FinalErrorController extends Controller {
