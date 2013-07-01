@@ -58,13 +58,26 @@ module fivefold {
     export class RouteRepository {
         private static sharedInstance = new RouteRepository();
         private routes: Object = {};
+        public parser: Function;
 
         static ofMemory(): RouteRepository {
             return this.sharedInstance;
         }
 
         routeForRelativeURL(relativeURL: string): monapt.Option<Route> {
+            this.validate();
             return null;
+        }
+
+        routeForKey(key: string): monapt.Option<Route> {
+            this.validate();
+            return null;
+        }
+
+        private validate() {
+            if (!this.parser) {
+                throw new Error('No such parser');
+            }
         }
 
     }

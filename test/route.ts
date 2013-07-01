@@ -23,5 +23,30 @@ module spec {
             repo.should.be.instanceof(fivefold.RouteRepository);
             repo.should.eql(fivefold.RouteRepository.ofMemory());
         });
+
+        describe('When after initialized', () => {
+            var repo = new fivefold.RouteRepository();
+
+            describe('#routeForRelativeURL', () => {
+                it('should throws `No such parser` Error', () => {
+                    (() => {
+                        repo.routeForRelativeURL('/');
+                    }).should.throw('No such parser');
+                });
+            });
+
+            describe('#routeForKey', () => {
+                it('should throws `No such parser` Error', () => {
+                    (() => {
+                        repo.routeForKey('key');
+                    }).should.throw('No such parser');
+                });
+            });
+        });
+
+        describe('When setted parerFunction', () => {
+
+        });
+
     });
 }
