@@ -48,51 +48,39 @@ module fivefold {
 
     }
 
-    export class Action {
-        pathOrName: string;
-        method: string;
-        static targetSplitter = /::/;
+    export class Route {
 
-        constructor(public route: string, target: string) {
-            var t = target.split(Action.targetSplitter);
-            this.pathOrName = t[0];
-            this.method = t[1];
-        }
+        constructor(public pattern: string,
+                    public controller: string,
+                    public method: string) { }
     }
 
-    class ActionRepository {
-        private static sharedInstance = new ActionRepository();
-        private actions: Object = {};
+    export class RouteRepository {
+        private static sharedInstance = new RouteRepository();
+        private routes: Object = {};
 
-        static ofMemory(): ActionRepository {
+        static ofMemory(): RouteRepository {
             return this.sharedInstance;
         }
 
-        actionForRoute(route: string): monapt.Option<Action> {
-            var action: Action = this.actions[route];
-            if (action) {
-                return new monapt.Some(action);
-            }
-            return new monapt.None<Action>();
+        routeForRelativeURL(relativeURL: string): monapt.Option<Route> {
+            return null;
         }
 
-        storeAction(route: string, action: Action) {
-            this.actions[route] = action;
-        }
     }
 
     export class Dispatcher {
         private realizer = new ControllerRealizer();
 
-        dispatch(action: Action, options: Object) {
-            this.realizer.realizeTry(action.pathOrName).orElse(() => this.dispatchErrorTry())
+        dispatch(action: Route, options: Object) {
+            this.realizer.realizeTry(action.controller).orElse(() => this.dispatchErrorTry())
                     .getOrElse(() => new FinalErrorController())//.dispatch(action.method, options);
         }
 
         private dispatchErrorTry(): monapt.Try<Controller> {
             return monapt.Try(() => {
-                return ActionRepository.ofMemory().actionForRoute('dispatchFailure')
-                        .map(action => action.pathOrName).get();
+                return RouteRepository.ofMemory().routeForRelativeURL('dispatchFailure')
+                        .map(action => action.controller).get();
             }).flatMap(pathOrName => this.realizer.realizeTry(pathOrName));
         }
     }
