@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Router Test</title>
+  </head>
+  <body>
+    <a href="#/index">Index</a>
+    <a href="#/hoge">Hoge</a>
+    <a href="#/fuga">Fuga</a>
+
+    <p id="pageName"></p>
+  </body>
+  <script src="../../components/jquery/jquery.min.js"></script>
+  <script src="../../components/monapt/monapt.js"></script>
+  <script src="../../compiled/src/fivefold.js"></script>
+  <script>
+    var pageName = document.getElementById('pageName');
+    function TestController() {
+        this.index = function() {
+            pageName.innerHTML = 'index';
+        }
+        this.hoge = function() {
+            pageName.innerHTML = 'hoge';
+        }
+        this.fuga = function() {
+            pageName.innerHTML = 'fuga';
+        }
+        this.dispatch = function(method) {
+            pageName.innerHTML = method;
+        }
+    }
+    (function() {
+        var router = new fivefold.Router(function(relativeURL) {
+            var pattern = relativeURL.slice(1);
+            return new monapt.Some(monapt.Tuple2(pattern, {}));
+        });
+        router.routes(function(match) {
+            match('/', 'Test::index');
+            match('/index', 'Test::index');
+            match('/hoge', 'Test::hoge');
+            match('/fuga', 'Test::fuga');
+        });
+    })();
+
+  </script>
+</html>

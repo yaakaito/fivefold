@@ -56,7 +56,9 @@ module fivefold {
 
         public layout: Layout;
 
-        dispatch(route: Route) {
+        dispatch(method: string, options: Object) {
+            this[method];
+            /*
             var future = <ActionFuture<View>>this[route.method]();
             future.onComplete(view => {
                 view.match({
@@ -68,12 +70,16 @@ module fivefold {
                     }    
                 });
             });
-
+    */
         }
     }
 
     export class FinalErrorController extends Controller {
 
+    }
+
+    export interface IRouteParser {
+        (relativeURL: string): monapt.Option<monapt.Tuple2<string, Object>>;
     }
 
     export class Route {
@@ -86,15 +92,15 @@ module fivefold {
     export class RouteRepository {
         private static sharedInstance = new RouteRepository();
         private routes: Object = {};
-        public parser: Function;
+        public parser: IRouteParser;
 
         static ofMemory(): RouteRepository {
-            return this.sharedInstance;
+            return RouteRepository.sharedInstance;
         }
 
         routeForRelativeURL(relativeURL: string): monapt.Option<Route> {
             this.validate();
-            return null;
+            return this.parser(relativeURL).flatMap<Route>(t => new monapt.Map(this.routes).get(t._1));
         }
 
         routeForKey(key: string): monapt.Option<Route> {
@@ -108,20 +114,74 @@ module fivefold {
             }
         }
 
+        registerRoute(route: Route) {
+            this.routes[route.pattern] = route;
+        }
+
+    }
+
+    export interface IRouteMatcher {
+        (pattern :string, controllerAndMethod: string);
+        (pattern :string, redirect: { redirectTo: string; });
+    }
+
+    var routeSplitter = /::/;
+
+    function routeMatcher(pattern :string, controllerAndMethod: string): void;
+    function routeMatcher(pattern :string, redirect: { redirectTo: string; }): void;
+    function routeMatcher(pattern :string, controllerOrRedirect: any): void {
+        var repository = RouteRepository.ofMemory();
+        if (typeof controllerOrRedirect == "string") {
+            var comp = controllerOrRedirect.split(routeSplitter);
+            repository.registerRoute( new Route(pattern, comp[0], comp[1]) );
+        } else {
+            // redirect
+//            repository.registerRoute( new Route('/index', 'Controller'))
+        }
+    }
+
+    export class Router {
+
+        private routeRepository = RouteRepository.ofMemory();
+        private dispatcher = new Dispatcher();
+
+        constructor(private parser: IRouteParser) {
+            this.routeRepository.parser = parser;
+            this.start();
+        }
+
+        private start() {
+            window.onhashchange = (event: Object) => {
+                var relativeURL: string = location.hash;
+                this.routeRepository.routeForRelativeURL(relativeURL).match({
+                    Some: route => {
+                        var options = this.parser(relativeURL).getOrElse(() => monapt.Tuple2(null, null))._2;
+                        this.dispatcher.dispatch(route, options);
+                    },
+                    None: () => {
+                        // 404;
+                    }
+                })
+            }
+        }
+
+        routes(routes: (matcher: IRouteMatcher) => void) { 
+            routes(routeMatcher);
+        }
     }
 
     export class Dispatcher {
         private realizer = new ControllerRealizer();
 
-        dispatch(action: Route, options: Object) {
-            this.realizer.realizeTry(action.controller).orElse(() => this.dispatchErrorTry())
-                    .getOrElse(() => new FinalErrorController())//.dispatch(action.method, options);
+        dispatch(route: Route, options: Object) {
+            this.realizer.realizeTry(route.controller).orElse(() => this.dispatchErrorTry())
+                    .getOrElse(() => new FinalErrorController()).dispatch(route.method, options);
         }
 
         private dispatchErrorTry(): monapt.Try<Controller> {
             return monapt.Try(() => {
                 return RouteRepository.ofMemory().routeForRelativeURL('dispatchFailure')
-                        .map(action => action.controller).get();
+                        .map(route => route.controller).get();
             }).flatMap(pathOrName => this.realizer.realizeTry(pathOrName));
         }
     }
