@@ -57,7 +57,7 @@ module fivefold {
         public layout: Layout;
 
         dispatch(method: string, options: Object) {
-            this[method];
+            this[method]();
             /*
             var future = <ActionFuture<View>>this[route.method]();
             future.onComplete(view => {
