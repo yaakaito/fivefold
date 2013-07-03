@@ -1,4 +1,6 @@
 /// <reference path="../definitions/monapt/monapt.d.ts" />
+/// <reference path="../definitions/jquery/jquery.d.ts" />
+
 
 module fivefold {
 
@@ -40,37 +42,75 @@ module fivefold {
         suffix = 'Controller';
     }
 
+    export interface ITemplate {
+        render(param: Object): string;
+    }
+ 
     export class View {
-        render() {
 
+        $el: JQuery = null;
+        tagName: string = 'div';
+        id: string = '';
+        className: string = '';
+        attributes: Object = {};
+
+        template: ITemplate = null;
+
+        constructor() {
+            this.ensureElement();
+        }
+
+        private ensureElement() {
+            if (this.$el) {
+                return ;
+            }
+
+            var attributes = {};
+            for (var key in this.attributes) {
+                attributes[key] = this.attributes[key];
+            }
+            attributes['id'] = this.id;
+            attributes['class'] = this.className;
+            
+            this.$el =  $('<' + this.tagName + '>').attr(attributes);
+        }
+
+        render() {
+            if (this.template) {
+                this.$el.html(this.template.render(this.values()));
+            }
+        }
+
+        values(): Object {
+            return {};
         }
     }
 
     export class Layout extends View {
-
+        $el = $(document.body);
     }
+
+    var layout = new Layout();
 
     export class ActionFuture<V extends View> extends monapt.Future<V> { }
 
     export class Controller {
 
-        public layout: Layout;
+        public layout: Layout = layout;
 
         dispatch(method: string, options: Object) {
-            this[method]();
-            /*
-            var future = <ActionFuture<View>>this[route.method]();
+            var future = <ActionFuture<View>>this[method](options);
             future.onComplete(view => {
                 view.match({
                     Success: view => {
-
+                        view.render();
+                        this.layout.$el.html(view.$el);
                     },
                     Failure: error => {
-
+                        console.log('error');
                     }    
                 });
             });
-    */
         }
     }
 

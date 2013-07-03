@@ -2,19 +2,52 @@
 
 module TestApp {
 
+    export class SimpleLayout extends fivefold.Layout {
+        $el = $('#contents');
+    }
+
+    export class SimpleTemplate implements fivefold.ITemplate {
+        render(param: Object): string {
+            return param['text'];
+        }
+    }
+
+    export class SimpleView extends fivefold.View {
+        tagName = 'p';
+        template = new SimpleTemplate();
+
+        constructor(private text: string) {
+            super();
+        }
+
+        values(): Object {
+            return {
+                'text': this.text,
+            }
+        }
+    }
+
     export class SimpleController extends fivefold.Controller {
-        pageName = document.getElementById('pageName');
+        layout = new SimpleLayout();
 
-        index() {
-            this.pageName.innerHTML = 'index';            
+        index(): fivefold.ActionFuture {
+            return monapt.future<SimpleView>(p => {
+                setTimeout(() => {
+                    p.success(new SimpleView('index'));
+                }, 1000);
+            });
         }
 
-        hoge() {
-            this.pageName.innerHTML = 'hoge';            
+        hoge(): fivefold.ActionFuture {
+            return monapt.future<SimpleView>(p => {
+                p.success(new SimpleView('hoge'));
+            });
         }
 
-        fuga() {
-            this.pageName.innerHTML = 'fuga';
+        fuga(): fivefold.ActionFuture {
+            return monapt.future<SimpleView>(p => {
+                p.success(new SimpleView('fuga'));
+            });
         }
     }
 

@@ -6,22 +6,67 @@ var __extends = this.__extends || function (d, b) {
 };
 var TestApp;
 (function (TestApp) {
+    var SimpleLayout = (function (_super) {
+        __extends(SimpleLayout, _super);
+        function SimpleLayout() {
+            _super.apply(this, arguments);
+            this.$el = $('#contents');
+        }
+        return SimpleLayout;
+    })(fivefold.Layout);
+    TestApp.SimpleLayout = SimpleLayout;
+
+    var SimpleTemplate = (function () {
+        function SimpleTemplate() {
+        }
+        SimpleTemplate.prototype.render = function (param) {
+            return param['text'];
+        };
+        return SimpleTemplate;
+    })();
+    TestApp.SimpleTemplate = SimpleTemplate;
+
+    var SimpleView = (function (_super) {
+        __extends(SimpleView, _super);
+        function SimpleView(text) {
+            _super.call(this);
+            this.text = text;
+            this.tagName = 'p';
+            this.template = new SimpleTemplate();
+        }
+        SimpleView.prototype.values = function () {
+            return {
+                'text': this.text
+            };
+        };
+        return SimpleView;
+    })(fivefold.View);
+    TestApp.SimpleView = SimpleView;
+
     var SimpleController = (function (_super) {
         __extends(SimpleController, _super);
         function SimpleController() {
             _super.apply(this, arguments);
-            this.pageName = document.getElementById('pageName');
+            this.layout = new SimpleLayout();
         }
         SimpleController.prototype.index = function () {
-            this.pageName.innerHTML = 'index';
+            return monapt.future(function (p) {
+                setTimeout(function () {
+                    p.success(new SimpleView('index'));
+                }, 1000);
+            });
         };
 
         SimpleController.prototype.hoge = function () {
-            this.pageName.innerHTML = 'hoge';
+            return monapt.future(function (p) {
+                p.success(new SimpleView('hoge'));
+            });
         };
 
         SimpleController.prototype.fuga = function () {
-            this.pageName.innerHTML = 'fuga';
+            return monapt.future(function (p) {
+                p.success(new SimpleView('fuga'));
+            });
         };
         return SimpleController;
     })(fivefold.Controller);
