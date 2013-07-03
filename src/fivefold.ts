@@ -202,18 +202,26 @@ module fivefold {
         }
 
         private start() {
+
             window.onhashchange = (event: Object) => {
-                var relativeURL: string = location.hash;
-                this.routeRepository.routeForRelativeURL(relativeURL).match({
-                    Some: route => {
-                        var options = this.parser(relativeURL).getOrElse(() => monapt.Tuple2(null, null))._2;
-                        this.dispatcher.dispatch(route, options);
-                    },
-                    None: () => {
-                        // 404;
-                    }
-                })
+                this.onHashChange();
             }
+
+            setTimeout(() => this.onHashChange(), 0);
+
+        }
+
+        private onHashChange() {
+            var relativeURL: string = location.hash;
+            this.routeRepository.routeForRelativeURL(relativeURL).match({
+                Some: route => {
+                    var options = this.parser(relativeURL).getOrElse(() => monapt.Tuple2(null, null))._2;
+                    this.dispatcher.dispatch(route, options);
+                },
+                None: () => {
+                    // 404;
+                }
+            })
         }
 
         routes(routes: (matcher: IRouteMatcher) => void) { 
