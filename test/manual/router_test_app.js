@@ -9,9 +9,14 @@ var TestApp;
     var SimpleLayout = (function (_super) {
         __extends(SimpleLayout, _super);
         function SimpleLayout() {
-            _super.apply(this, arguments);
-            this.$el = $('#contents');
+            _super.call(this);
+            this.$content = $('#contents');
+            this.$content.html('');
+            this.$content.css({ 'background-color': 'red' });
         }
+        SimpleLayout.prototype.beforeDisplayContent = function () {
+            this.$content.css({ 'background-color': 'white' });
+        };
         return SimpleLayout;
     })(fivefold.Layout);
     TestApp.SimpleLayout = SimpleLayout;

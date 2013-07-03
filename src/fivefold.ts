@@ -88,6 +88,11 @@ module fivefold {
 
     export class Layout extends View {
         $el = $(document.body);
+        $content = $(document.body);
+
+        beforeDisplayContent() {
+            ;
+        }
     }
 
     var layout = new Layout();
@@ -104,7 +109,8 @@ module fivefold {
                 view.match({
                     Success: view => {
                         view.render();
-                        this.layout.$el.html(view.$el);
+                        this.layout.beforeDisplayContent();
+                        this.layout.$content.html(view.$el);
                     },
                     Failure: error => {
                         console.log('error');

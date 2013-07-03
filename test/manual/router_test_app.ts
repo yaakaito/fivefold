@@ -3,7 +3,18 @@
 module TestApp {
 
     export class SimpleLayout extends fivefold.Layout {
-        $el = $('#contents');
+        $content = $('#contents');
+
+        constructor() {
+            super();
+            this.$content.html('');
+            this.$content.css({ 'background-color': 'red'});
+        }
+
+        beforeDisplayContent() {
+            this.$content.css({ 'background-color': 'white'});
+        }
+
     }
 
     export class SimpleTemplate implements fivefold.ITemplate {
