@@ -104,6 +104,7 @@ module fivefold {
         public layout: Layout = layout;
 
         dispatch(method: string, options: Object) {
+            this.layout.render();
             var future = <ActionFuture<View>>this[method](options);
             future.onComplete(view => {
                 view.match({
