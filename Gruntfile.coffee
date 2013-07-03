@@ -13,7 +13,7 @@ module.exports = (grunt) ->
                     module: 'commonjs'
                     target: 'es3'
                     # sourcemap: true
-                    # declaration: true
+                    declaration: true
 
             test:
                 src: ['test/**/*.ts']
