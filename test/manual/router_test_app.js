@@ -55,7 +55,7 @@ var TestApp;
             this.layout = new SimpleLayout();
         }
         SimpleController.prototype.index = function () {
-            return monapt.future(function (p) {
+            return fivefold.actionFuture(function (p) {
                 setTimeout(function () {
                     p.success(new SimpleView('index'));
                 }, 1000);
@@ -63,13 +63,13 @@ var TestApp;
         };
 
         SimpleController.prototype.hoge = function () {
-            return monapt.future(function (p) {
+            return fivefold.actionFuture(function (p) {
                 p.success(new SimpleView('hoge'));
             });
         };
 
         SimpleController.prototype.fuga = function () {
-            return monapt.future(function (p) {
+            return fivefold.actionFuture(function (p) {
                 p.success(new SimpleView('fuga'));
             });
         };

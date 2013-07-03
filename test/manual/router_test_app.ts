@@ -42,7 +42,7 @@ module TestApp {
         layout = new SimpleLayout();
 
         index(): fivefold.ActionFuture {
-            return monapt.future<SimpleView>(p => {
+            return fivefold.actionFuture(p => {
                 setTimeout(() => {
                     p.success(new SimpleView('index'));
                 }, 1000);
@@ -50,13 +50,13 @@ module TestApp {
         }
 
         hoge(): fivefold.ActionFuture {
-            return monapt.future<SimpleView>(p => {
+            return fivefold.actionFuture(p => {
                 p.success(new SimpleView('hoge'));
             });
         }
 
         fuga(): fivefold.ActionFuture {
-            return monapt.future<SimpleView>(p => {
+            return fivefold.actionFuture(p => {
                 p.success(new SimpleView('fuga'));
             });
         }
