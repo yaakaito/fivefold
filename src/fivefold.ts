@@ -48,16 +48,21 @@ module fivefold {
  
     export class View {
 
+        static eventSplitter = /^(\S+)\s*(.*)$/;
         $el: JQuery = null;
         tagName: string = 'div';
         id: string = '';
         className: string = '';
         attributes: Object = {};
 
-        template: ITemplate = null;
+        template: ITemplate;
+        events: Object;
 
         constructor() {
-            this.ensureElement();
+            setTimeout(() => {
+                this.ensureElement();
+                this.delegateEvents();
+            }, 0);
         }
 
         private ensureElement() {
@@ -73,6 +78,28 @@ module fivefold {
             attributes['class'] = this.className;
             
             this.$el =  $('<' + this.tagName + '>').attr(attributes);
+        }
+
+        private delegateEvents() {
+            if (!this.events) {
+                return;
+            }
+
+            var eventMap = new monapt.Map<string, string>(this.events);
+            eventMap.filter((k, method) => $.isFunction(this[method])).mapValues<Function>(method => $.proxy(this[method], this))
+                    .map<string, monapt.Tuple2<string, Function>>((event, method) => {
+                        var match = event.match(View.eventSplitter);
+                        return monapt.Tuple2(match[1] + '.fivefold', monapt.Tuple2(match[2], method));
+                    })
+                    .foreach((event, selectorAndMethod) => {
+                        var selector = selectorAndMethod._1, method = selectorAndMethod._2;
+                        if (selector === '') {
+                            this.$el.on(event, method);                            
+                        }
+                        else {
+                            this.$el.on(event, selector, method);
+                        }
+                    });
         }
 
         render() {
@@ -93,6 +120,10 @@ module fivefold {
         beforeDisplayContent() {
             ;
         }
+
+        display(elem: JQuery) {
+            this.$content.html(elem);
+        }
     }
 
     var layout = new Layout();
@@ -108,14 +139,18 @@ module fivefold {
         public layout: Layout = layout;
 
         dispatch(method: string, options: Object) {
-            this.layout.render();
+            setTimeout(() => {
+                this.layout.render();
+            }, 0);
             var future = <ActionFuture<View>>this[method](options);
             future.onComplete(view => {
                 view.match({
                     Success: view => {
-                        view.render();
-                        this.layout.beforeDisplayContent();
-                        this.layout.$content.html(view.$el);
+                        setTimeout(() => {
+                            view.render();
+                            this.layout.beforeDisplayContent();
+                            this.layout.display(view.$el);
+                        }, 0);
                     },
                     Failure: error => {
                         console.log('error');

@@ -25,7 +25,7 @@ var TestApp;
         function SimpleTemplate() {
         }
         SimpleTemplate.prototype.render = function (param) {
-            return param['text'];
+            return '<button class="button">' + param['text'] + '</button>';
         };
         return SimpleTemplate;
     })();
@@ -38,11 +38,18 @@ var TestApp;
             this.text = text;
             this.tagName = 'p';
             this.template = new SimpleTemplate();
+            this.events = {
+                'click .button': 'showAlert'
+            };
         }
         SimpleView.prototype.values = function () {
             return {
                 'text': this.text
             };
+        };
+
+        SimpleView.prototype.showAlert = function () {
+            alert(this.text);
         };
         return SimpleView;
     })(fivefold.View);

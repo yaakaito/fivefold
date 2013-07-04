@@ -19,13 +19,16 @@ module TestApp {
 
     export class SimpleTemplate implements fivefold.ITemplate {
         render(param: Object): string {
-            return param['text'];
+            return '<button class="button">' + param['text'] + '</button>';
         }
     }
 
     export class SimpleView extends fivefold.View {
         tagName = 'p';
         template = new SimpleTemplate();
+        events = {
+            'click .button' : 'showAlert'
+        }
 
         constructor(private text: string) {
             super();
@@ -35,6 +38,10 @@ module TestApp {
             return {
                 'text': this.text,
             }
+        }
+
+        showAlert() {
+            alert(this.text);
         }
     }
 
