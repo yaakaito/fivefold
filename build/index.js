@@ -53,13 +53,16 @@ var fivefold;
 
     var View = (function () {
         function View() {
+            var _this = this;
             this.$el = null;
             this.tagName = 'div';
             this.id = '';
             this.className = '';
             this.attributes = {};
-            this.template = null;
-            this.ensureElement();
+            setTimeout(function () {
+                _this.ensureElement();
+                _this.delegateEvents();
+            }, 0);
         }
         View.prototype.ensureElement = function () {
             if (this.$el) {
@@ -76,6 +79,30 @@ var fivefold;
             this.$el = $('<' + this.tagName + '>').attr(attributes);
         };
 
+        View.prototype.delegateEvents = function () {
+            var _this = this;
+            if (!this.events) {
+                return;
+            }
+
+            var eventMap = new monapt.Map(this.events);
+            eventMap.filter(function (k, method) {
+                return $.isFunction(_this[method]);
+            }).mapValues(function (method) {
+                return $.proxy(_this[method], _this);
+            }).map(function (event, method) {
+                var match = event.match(View.eventSplitter);
+                return monapt.Tuple2(match[1] + '.fivefold', monapt.Tuple2(match[2], method));
+            }).foreach(function (event, selectorAndMethod) {
+                var selector = selectorAndMethod._1, method = selectorAndMethod._2;
+                if (selector === '') {
+                    _this.$el.on(event, method);
+                } else {
+                    _this.$el.on(event, selector, method);
+                }
+            });
+        };
+
         View.prototype.render = function () {
             if (this.template) {
                 this.$el.html(this.template.render(this.values()));
@@ -85,6 +112,7 @@ var fivefold;
         View.prototype.values = function () {
             return {};
         };
+        View.eventSplitter = /^(\S+)\s*(.*)$/;
         return View;
     })();
     fivefold.View = View;
@@ -98,6 +126,10 @@ var fivefold;
         }
         Layout.prototype.beforeDisplayContent = function () {
             ;
+        };
+
+        Layout.prototype.display = function (elem) {
+            this.$content.html(elem);
         };
         return Layout;
     })(View);
@@ -126,14 +158,18 @@ var fivefold;
         }
         Controller.prototype.dispatch = function (method, options) {
             var _this = this;
-            this.layout.render();
+            setTimeout(function () {
+                _this.layout.render();
+            }, 0);
             var future = this[method](options);
             future.onComplete(function (view) {
                 view.match({
                     Success: function (view) {
-                        view.render();
-                        _this.layout.beforeDisplayContent();
-                        _this.layout.$content.html(view.$el);
+                        setTimeout(function () {
+                            view.render();
+                            _this.layout.beforeDisplayContent();
+                            _this.layout.display(view.$el);
+                        }, 0);
                     },
                     Failure: function (error) {
                         console.log('error');
