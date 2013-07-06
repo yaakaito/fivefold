@@ -69,13 +69,22 @@ module TestApp {
         }
     }
 
+    class SimpleResolver extends fivefold.RouteResolver {
+        parse(relativeURL: string): fivefold.IRouteResolverParseResult {
+            return {
+                pattern: relativeURL.slice(1),
+                options: {}
+            }
+        }
+
+        match(matchedPattern, routePattern): boolean {
+            return matchedPattern === routePattern;
+        }
+    }
+
     class Application {
         constructor() {
-            var router = new fivefold.Router(relativeURL => {
-                var pattern = relativeURL.slice(1);
-                return new monapt.Some(monapt.Tuple2(pattern, {}));
-            });
-
+            var router = new fivefold.Router(new SimpleResolver());
             router.routes(match => {
                 match('/', 'TestApp.Simple::index');
                 match('/index', 'TestApp.Simple::index');

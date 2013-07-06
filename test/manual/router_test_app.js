@@ -84,13 +84,27 @@ var TestApp;
     })(fivefold.Controller);
     TestApp.SimpleController = SimpleController;
 
+    var SimpleResolver = (function (_super) {
+        __extends(SimpleResolver, _super);
+        function SimpleResolver() {
+            _super.apply(this, arguments);
+        }
+        SimpleResolver.prototype.parse = function (relativeURL) {
+            return {
+                pattern: relativeURL.slice(1),
+                options: {}
+            };
+        };
+
+        SimpleResolver.prototype.match = function (matchedPattern, routePattern) {
+            return matchedPattern === routePattern;
+        };
+        return SimpleResolver;
+    })(fivefold.RouteResolver);
+
     var Application = (function () {
         function Application() {
-            var router = new fivefold.Router(function (relativeURL) {
-                var pattern = relativeURL.slice(1);
-                return new monapt.Some(monapt.Tuple2(pattern, {}));
-            });
-
+            var router = new fivefold.Router(new SimpleResolver());
             router.routes(function (match) {
                 match('/', 'TestApp.Simple::index');
                 match('/index', 'TestApp.Simple::index');

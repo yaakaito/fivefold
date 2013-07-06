@@ -211,6 +211,10 @@ module fivefold {
         (relativeURL: string): monapt.Option<monapt.Tuple2<string, Object>>;
     }
 
+    export interface IRouteMatcher {
+        (matched: string, pattern: string): boolean; 
+    }
+
     export class Route {
 
         constructor(public pattern: string,
@@ -218,25 +222,36 @@ module fivefold {
                     public method: string) { }
     }
 
+    export interface IRouteResolverParseResult {
+        pattern: string;
+        options: Object;
+    }
+
+    export class RouteResolver {
+
+        resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Option<monapt.Tuple2<Route, Object>> {
+            var r = this.parse(relativeURL);
+            return routes.find((k, v) => this.match(r.pattern, k))
+                    .map<monapt.Tuple2<Route, Object>>(t => monapt.Tuple2(t._2, r.options));
+        }
+
+        parse(relativeURL: string): IRouteResolverParseResult {
+            return {
+                options: {},
+                pattern: null
+            }
+        }
+
+        match(matched: string, pattern: string): boolean {
+            return false;
+        }
+    }
+
     export class RouteRepository {
         private routes: Object = {};
-        public parser: IRouteParser;
 
-
-        routeForRelativeURL(relativeURL: string): monapt.Option<Route> {
-            this.validate();
-            return this.parser(relativeURL).flatMap<Route>(t => new monapt.Map(this.routes).get(t._1));
-        }
-
-        routeForKey(key: string): monapt.Option<Route> {
-            this.validate();
-            return null;
-        }
-
-        private validate() {
-            if (!this.parser) {
-                throw new Error('No such parser');
-            }
+        routesMap(): monapt.Map<string, Route> {
+            return new monapt.Map<string, Route>(this.routes);
         }
 
         registerRoute(route: Route) {
@@ -246,33 +261,31 @@ module fivefold {
 
     var routeRepository = new RouteRepository();
 
-    export interface IRouteMatcher {
+    export interface IRouteRegister {
         (pattern :string, controllerAndMethod: string);
         (pattern :string, redirect: { redirectTo: string; });
     }
 
     var routeSplitter = /::/;
 
-    function routeMatcher(pattern :string, controllerAndMethod: string): void;
-    function routeMatcher(pattern :string, redirect: { redirectTo: string; }): void;
-    function routeMatcher(pattern :string, controllerOrRedirect: any): void {
+    function routeRegisterFn(pattern :string, controllerAndMethod: string): void;
+    function routeRegisterFn(pattern :string, redirect: { redirectTo: string; }): void;
+    function routeRegisterFn(pattern :string, controllerOrRedirect: any): void {
         var repository = routeRepository;
         if (typeof controllerOrRedirect == "string") {
             var comp = controllerOrRedirect.split(routeSplitter);
-            repository.registerRoute( new Route(pattern, comp[0], comp[1]) );
+            repository.registerRoute( new Route(pattern, comp[0], comp[1]));
         } else {
             // redirect
-//            repository.registerRoute( new Route('/index', 'Controller'))
+            // repository.registerRoute( new Route('/index', 'Controller'))
         }
     }
 
     export class Router {
 
-        private routeRepository = routeRepository;
         private dispatcher = new Dispatcher();
 
-        constructor(private parser: IRouteParser) {
-            this.routeRepository.parser = parser;
+        constructor(private resolver: RouteResolver) {
             this.start();
         }
 
@@ -285,20 +298,15 @@ module fivefold {
 
         private onHashChange() {
             var relativeURL: string = location.hash;
-            this.routeRepository.routeForRelativeURL(relativeURL).match({
-                Some: route => {
-                    var options = this.parser(relativeURL).getOrElse(() => monapt.Tuple2(null, null))._2;
-                    this.dispatcher.dispatch(route, options);
-                },
-                None: () => {
-
-                    // 404;
-                }
-            })
+            this.resolver.resolve(relativeURL, routeRepository.routesMap())
+                    .match({
+                        Some: t => this.dispatcher.dispatch(t._1, t._2),
+                        None: () => console.error('No route...')
+                    });
         }
 
-        routes(routes: (matcher: IRouteMatcher) => void) { 
-            routes(routeMatcher);
+        routes(routes: (match: IRouteRegister) => void) { 
+            routes(routeRegisterFn);
         }
     }
 
