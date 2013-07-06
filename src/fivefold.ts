@@ -172,11 +172,12 @@ module fivefold {
 
         public layout: Layout = layout;
 
-        dispatch(method: string, options: Object) {
+        dispatchFuture(method: string, options: Object): monapt.Future<View> {
+
             var renderLayoutFuture = this.layout.renderFuture();
             var actionFuture = <ActionFuture<View>>this[method](options);
 
-            actionFuture.flatMap<View>(view => {
+            return actionFuture.flatMap<View>(view => {
                 return renderLayoutFuture.map<View>((layout, promise) => {
                     setTimeout(() => {
                         var future = view.renderFuture();    
@@ -187,14 +188,24 @@ module fivefold {
                         });
                         future.onFailure(e => promise.failure(e));
                     });
-                })
+                });
             });
+
         }
     }
 
-    export class FinalErrorController extends Controller {
+    class ControllerRepository {
 
+        controllerForRoute(route: Route): monapt.Option<Controller> {
+            var realizer = new ControllerRealizer();
+            return realizer.realizeTry(route.controller)
+                    .map<monapt.Option<Controller>>(controller => new monapt.Some(controller))
+                    .getOrElse(() => new monapt.None<Controller>());
+        }
     }
+
+    var controllerRepository = new ControllerRepository();
+
 
     export interface IRouteParser {
         (relativeURL: string): monapt.Option<monapt.Tuple2<string, Object>>;
@@ -286,6 +297,7 @@ module fivefold {
                     this.dispatcher.dispatch(route, options);
                 },
                 None: () => {
+
                     // 404;
                 }
             })
@@ -297,18 +309,13 @@ module fivefold {
     }
 
     export class Dispatcher {
-        private realizer = new ControllerRealizer();
 
         dispatch(route: Route, options: Object) {
-            this.realizer.realizeTry(route.controller).orElse(() => this.dispatchErrorTry())
-                    .getOrElse(() => new FinalErrorController()).dispatch(route.method, options);
+            controllerRepository.controllerForRoute(route).match({
+                Some: controller => controller.dispatchFuture(route.method, options),
+                None: () => console.error('Dispatch failure.')
+            });
         }
 
-        private dispatchErrorTry(): monapt.Try<Controller> {
-            return monapt.Try(() => {
-                return RouteRepository.ofMemory().routeForRelativeURL('dispatchFailure')
-                        .map(route => route.controller).get();
-            }).flatMap(pathOrName => this.realizer.realizeTry(pathOrName));
-        }
     }
 }

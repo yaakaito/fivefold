@@ -59,10 +59,18 @@ var fivefold;
             this.id = '';
             this.className = '';
             this.attributes = {};
-            setTimeout(function () {
-                _this.ensureElement();
-                _this.delegateEvents();
-            }, 0);
+            this.ensureFuture = monapt.future(function (p) {
+                setTimeout(function () {
+                    try  {
+                        _this.ensureElement();
+                        _this.delegateEvents();
+                        _this.created(_this.$el);
+                        p.success(_this);
+                    } catch (e) {
+                        p.failure(e);
+                    }
+                }, 0);
+            });
         }
         View.prototype.ensureElement = function () {
             if (this.$el) {
@@ -103,6 +111,20 @@ var fivefold;
             });
         };
 
+        View.prototype.renderFuture = function () {
+            var _this = this;
+            return this.ensureFuture.map(function (view, p) {
+                setTimeout(function () {
+                    try  {
+                        _this.render();
+                        p.success(_this);
+                    } catch (e) {
+                        p.failure(e);
+                    }
+                }, 0);
+            });
+        };
+
         View.prototype.render = function () {
             if (this.template) {
                 this.$el.html(this.template.render(this.values()));
@@ -111,6 +133,10 @@ var fivefold;
 
         View.prototype.values = function () {
             return {};
+        };
+
+        View.prototype.created = function ($el) {
+            ;
         };
         View.eventSplitter = /^(\S+)\s*(.*)$/;
         return View;
@@ -126,6 +152,10 @@ var fivefold;
         }
         Layout.prototype.beforeDisplayContent = function () {
             ;
+        };
+
+        Layout.prototype.renderFuture = function () {
+            return _super.prototype.renderFuture.call(this);
         };
 
         Layout.prototype.display = function (elem) {
@@ -156,24 +186,23 @@ var fivefold;
         function Controller() {
             this.layout = layout;
         }
-        Controller.prototype.dispatch = function (method, options) {
-            var _this = this;
-            setTimeout(function () {
-                _this.layout.render();
-            }, 0);
-            var future = this[method](options);
-            future.onComplete(function (view) {
-                view.match({
-                    Success: function (view) {
-                        setTimeout(function () {
-                            view.render();
-                            _this.layout.beforeDisplayContent();
-                            _this.layout.display(view.$el);
-                        }, 0);
-                    },
-                    Failure: function (error) {
-                        console.log('error');
-                    }
+        Controller.prototype.dispatchFuture = function (method, options) {
+            var renderLayoutFuture = this.layout.renderFuture();
+            var actionFuture = this[method](options);
+
+            return actionFuture.flatMap(function (view) {
+                return renderLayoutFuture.map(function (layout, promise) {
+                    setTimeout(function () {
+                        var future = view.renderFuture();
+                        future.onSuccess(function (view) {
+                            layout.beforeDisplayContent();
+                            layout.display(view.$el);
+                            promise.success(view);
+                        });
+                        future.onFailure(function (e) {
+                            return promise.failure(e);
+                        });
+                    });
                 });
             });
         };
@@ -181,14 +210,21 @@ var fivefold;
     })();
     fivefold.Controller = Controller;
 
-    var FinalErrorController = (function (_super) {
-        __extends(FinalErrorController, _super);
-        function FinalErrorController() {
-            _super.apply(this, arguments);
+    var ControllerRepository = (function () {
+        function ControllerRepository() {
         }
-        return FinalErrorController;
-    })(Controller);
-    fivefold.FinalErrorController = FinalErrorController;
+        ControllerRepository.prototype.controllerForRoute = function (route) {
+            var realizer = new ControllerRealizer();
+            return realizer.realizeTry(route.controller).map(function (controller) {
+                return new monapt.Some(controller);
+            }).getOrElse(function () {
+                return new monapt.None();
+            });
+        };
+        return ControllerRepository;
+    })();
+
+    var controllerRepository = new ControllerRepository();
 
     var Route = (function () {
         function Route(pattern, controller, method) {
@@ -289,25 +325,15 @@ var fivefold;
 
     var Dispatcher = (function () {
         function Dispatcher() {
-            this.realizer = new ControllerRealizer();
         }
         Dispatcher.prototype.dispatch = function (route, options) {
-            var _this = this;
-            this.realizer.realizeTry(route.controller).orElse(function () {
-                return _this.dispatchErrorTry();
-            }).getOrElse(function () {
-                return new FinalErrorController();
-            }).dispatch(route.method, options);
-        };
-
-        Dispatcher.prototype.dispatchErrorTry = function () {
-            var _this = this;
-            return monapt.Try(function () {
-                return RouteRepository.ofMemory().routeForRelativeURL('dispatchFailure').map(function (route) {
-                    return route.controller;
-                }).get();
-            }).flatMap(function (pathOrName) {
-                return _this.realizer.realizeTry(pathOrName);
+            controllerRepository.controllerForRoute(route).match({
+                Some: function (controller) {
+                    return controller.dispatchFuture(route.method, options);
+                },
+                None: function () {
+                    return console.error('Dispatch failure.');
+                }
             });
         };
         return Dispatcher;
