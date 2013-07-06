@@ -18,11 +18,6 @@ module spec {
     });
 
     describe('RouteRepository', () => {
-        it('has shared on memory repository', () => {
-            var repo = fivefold.RouteRepository.ofMemory();
-            repo.should.be.instanceof(fivefold.RouteRepository);
-            repo.should.eql(fivefold.RouteRepository.ofMemory());
-        });
 
         describe('When after initialized', () => {
             var repo = new fivefold.RouteRepository();

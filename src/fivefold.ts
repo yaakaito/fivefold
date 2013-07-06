@@ -219,13 +219,9 @@ module fivefold {
     }
 
     export class RouteRepository {
-        private static sharedInstance = new RouteRepository();
         private routes: Object = {};
         public parser: IRouteParser;
 
-        static ofMemory(): RouteRepository {
-            return RouteRepository.sharedInstance;
-        }
 
         routeForRelativeURL(relativeURL: string): monapt.Option<Route> {
             this.validate();
@@ -246,8 +242,9 @@ module fivefold {
         registerRoute(route: Route) {
             this.routes[route.pattern] = route;
         }
-
     }
+
+    var routeRepository = new RouteRepository();
 
     export interface IRouteMatcher {
         (pattern :string, controllerAndMethod: string);
@@ -259,7 +256,7 @@ module fivefold {
     function routeMatcher(pattern :string, controllerAndMethod: string): void;
     function routeMatcher(pattern :string, redirect: { redirectTo: string; }): void;
     function routeMatcher(pattern :string, controllerOrRedirect: any): void {
-        var repository = RouteRepository.ofMemory();
+        var repository = routeRepository;
         if (typeof controllerOrRedirect == "string") {
             var comp = controllerOrRedirect.split(routeSplitter);
             repository.registerRoute( new Route(pattern, comp[0], comp[1]) );
@@ -271,7 +268,7 @@ module fivefold {
 
     export class Router {
 
-        private routeRepository = RouteRepository.ofMemory();
+        private routeRepository = routeRepository;
         private dispatcher = new Dispatcher();
 
         constructor(private parser: IRouteParser) {

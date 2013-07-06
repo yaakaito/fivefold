@@ -240,10 +240,6 @@ var fivefold;
         function RouteRepository() {
             this.routes = {};
         }
-        RouteRepository.ofMemory = function () {
-            return RouteRepository.sharedInstance;
-        };
-
         RouteRepository.prototype.routeForRelativeURL = function (relativeURL) {
             var _this = this;
             this.validate();
@@ -266,15 +262,16 @@ var fivefold;
         RouteRepository.prototype.registerRoute = function (route) {
             this.routes[route.pattern] = route;
         };
-        RouteRepository.sharedInstance = new RouteRepository();
         return RouteRepository;
     })();
     fivefold.RouteRepository = RouteRepository;
 
+    var routeRepository = new RouteRepository();
+
     var routeSplitter = /::/;
 
     function routeMatcher(pattern, controllerOrRedirect) {
-        var repository = RouteRepository.ofMemory();
+        var repository = routeRepository;
         if (typeof controllerOrRedirect == "string") {
             var comp = controllerOrRedirect.split(routeSplitter);
             repository.registerRoute(new Route(pattern, comp[0], comp[1]));
@@ -285,7 +282,7 @@ var fivefold;
     var Router = (function () {
         function Router(parser) {
             this.parser = parser;
-            this.routeRepository = RouteRepository.ofMemory();
+            this.routeRepository = routeRepository;
             this.dispatcher = new Dispatcher();
             this.routeRepository.parser = parser;
             this.start();
