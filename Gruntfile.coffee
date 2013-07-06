@@ -80,7 +80,7 @@ module.exports = (grunt) ->
 
     grunt.registerTask 'compile', ['typescript:compile', 'typescript:test']
     grunt.registerTask 'default', ['compile']
-    grunt.registerTask 'build', ['compile', 'concat', 'uglify']
+    grunt.registerTask 'build', ['typescript:compile', 'concat', 'uglify']
     grunt.registerTask 'generate', ['compile', 'build', 'copy:public']
     grunt.registerTask 'preview', ['generate', 'connect:preview', 'regarde']
 

@@ -236,27 +236,39 @@ var fivefold;
     })();
     fivefold.Route = Route;
 
+    var RouteResolver = (function () {
+        function RouteResolver() {
+        }
+        RouteResolver.prototype.resolve = function (relativeURL, routes) {
+            var _this = this;
+            var r = this.parse(relativeURL);
+            return routes.find(function (k, v) {
+                return _this.match(r.pattern, k);
+            }).map(function (t) {
+                return monapt.Tuple2(t._2, r.options);
+            });
+        };
+
+        RouteResolver.prototype.parse = function (relativeURL) {
+            return {
+                options: {},
+                pattern: null
+            };
+        };
+
+        RouteResolver.prototype.match = function (matched, pattern) {
+            return false;
+        };
+        return RouteResolver;
+    })();
+    fivefold.RouteResolver = RouteResolver;
+
     var RouteRepository = (function () {
         function RouteRepository() {
             this.routes = {};
         }
-        RouteRepository.prototype.routeForRelativeURL = function (relativeURL) {
-            var _this = this;
-            this.validate();
-            return this.parser(relativeURL).flatMap(function (t) {
-                return new monapt.Map(_this.routes).get(t._1);
-            });
-        };
-
-        RouteRepository.prototype.routeForKey = function (key) {
-            this.validate();
-            return null;
-        };
-
-        RouteRepository.prototype.validate = function () {
-            if (!this.parser) {
-                throw new Error('No such parser');
-            }
+        RouteRepository.prototype.routesMap = function () {
+            return new monapt.Map(this.routes);
         };
 
         RouteRepository.prototype.registerRoute = function (route) {
@@ -270,7 +282,7 @@ var fivefold;
 
     var routeSplitter = /::/;
 
-    function routeMatcher(pattern, controllerOrRedirect) {
+    function routeRegisterFn(pattern, controllerOrRedirect) {
         var repository = routeRepository;
         if (typeof controllerOrRedirect == "string") {
             var comp = controllerOrRedirect.split(routeSplitter);
@@ -280,11 +292,9 @@ var fivefold;
     }
 
     var Router = (function () {
-        function Router(parser) {
-            this.parser = parser;
-            this.routeRepository = routeRepository;
+        function Router(resolver) {
+            this.resolver = resolver;
             this.dispatcher = new Dispatcher();
-            this.routeRepository.parser = parser;
             this.start();
         }
         Router.prototype.start = function () {
@@ -292,7 +302,6 @@ var fivefold;
             window.onhashchange = function (event) {
                 _this.onHashChange();
             };
-
             setTimeout(function () {
                 return _this.onHashChange();
             }, 0);
@@ -301,20 +310,18 @@ var fivefold;
         Router.prototype.onHashChange = function () {
             var _this = this;
             var relativeURL = location.hash;
-            this.routeRepository.routeForRelativeURL(relativeURL).match({
-                Some: function (route) {
-                    var options = _this.parser(relativeURL).getOrElse(function () {
-                        return monapt.Tuple2(null, null);
-                    })._2;
-                    _this.dispatcher.dispatch(route, options);
+            this.resolver.resolve(relativeURL, routeRepository.routesMap()).match({
+                Some: function (t) {
+                    return _this.dispatcher.dispatch(t._1, t._2);
                 },
                 None: function () {
+                    return console.error('No route...');
                 }
             });
         };
 
         Router.prototype.routes = function (routes) {
-            routes(routeMatcher);
+            routes(routeRegisterFn);
         };
         return Router;
     })();
