@@ -58,11 +58,22 @@ module fivefold {
         template: ITemplate;
         events: Object;
 
+        private ensureFuture: monapt.Future<View>;
+
         constructor() {
-            setTimeout(() => {
-                this.ensureElement();
-                this.delegateEvents();
-            }, 0);
+            this.ensureFuture = monapt.future<View>(p => {
+                setTimeout(() => {
+                    try {
+                        this.ensureElement();
+                        this.delegateEvents();
+                        this.created(this.$el);                        
+                        p.success(this);
+                    }
+                    catch (e) {
+                        p.failure(e);
+                    }
+                }, 0);                
+            });
         }
 
         private ensureElement() {
@@ -86,7 +97,8 @@ module fivefold {
             }
 
             var eventMap = new monapt.Map<string, string>(this.events);
-            eventMap.filter((k, method) => $.isFunction(this[method])).mapValues<Function>(method => $.proxy(this[method], this))
+            eventMap.filter((k, method) => $.isFunction(this[method]))
+                    .mapValues<Function>(method => $.proxy(this[method], this))
                     .map<string, monapt.Tuple2<string, Function>>((event, method) => {
                         var match = event.match(View.eventSplitter);
                         return monapt.Tuple2(match[1] + '.fivefold', monapt.Tuple2(match[2], method));
@@ -102,7 +114,20 @@ module fivefold {
                     });
         }
 
-        render() {
+        renderFuture(): monapt.Future<View> {
+            return this.ensureFuture.map<View>((view, p) => {
+                setTimeout(() => {
+                    try {
+                        this.render();
+                        p.success(this);
+                    } catch (e) {
+                        p.failure(e);
+                    }
+                }, 0);
+            });
+        }
+
+        render() {            
             if (this.template) {
                 this.$el.html(this.template.render(this.values()));
             }
@@ -110,6 +135,11 @@ module fivefold {
 
         values(): Object {
             return {};
+        }
+
+        // @overridable
+        created($el: JQuery) {
+            ;
         }
     }
 
@@ -119,6 +149,10 @@ module fivefold {
 
         beforeDisplayContent() {
             ;
+        }
+
+        renderFuture(): monapt.Future<Layout> {
+            return super.renderFuture();
         }
 
         display(elem: JQuery) {
@@ -139,23 +173,21 @@ module fivefold {
         public layout: Layout = layout;
 
         dispatch(method: string, options: Object) {
-            setTimeout(() => {
-                this.layout.render();
-            }, 0);
-            var future = <ActionFuture<View>>this[method](options);
-            future.onComplete(view => {
-                view.match({
-                    Success: view => {
-                        setTimeout(() => {
-                            view.render();
-                            this.layout.beforeDisplayContent();
-                            this.layout.display(view.$el);
-                        }, 0);
-                    },
-                    Failure: error => {
-                        console.log('error');
-                    }    
-                });
+            var renderLayoutFuture = this.layout.renderFuture();
+            var actionFuture = <ActionFuture<View>>this[method](options);
+
+            actionFuture.flatMap<View>(view => {
+                return renderLayoutFuture.map<View>((layout, promise) => {
+                    setTimeout(() => {
+                        var future = view.renderFuture();    
+                        future.onSuccess(view => {
+                            layout.beforeDisplayContent(); 
+                            layout.display(view.$el);   
+                            promise.success(view);
+                        });
+                        future.onFailure(e => promise.failure(e));
+                    });
+                })
             });
         }
     }
