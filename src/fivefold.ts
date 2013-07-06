@@ -277,13 +277,10 @@ module fivefold {
         }
 
         private start() {
-
             window.onhashchange = (event: Object) => {
                 this.onHashChange();
             }
-
             setTimeout(() => this.onHashChange(), 0);
-
         }
 
         private onHashChange() {
