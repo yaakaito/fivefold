@@ -17,7 +17,7 @@ module TestApp {
 
     }
 
-    export class SimpleTemplate implements fivefold.ITemplate {
+    export class SimpleTemplate {
         render(param: Object): string {
             return '<button class="button">' + param['text'] + '</button>';
         }
@@ -34,10 +34,10 @@ module TestApp {
             super();
         }
 
-        values(): Object {
-            return {
-                'text': this.text,
-            }
+        render() {
+            this.$el.html(this.template.render({
+                'text': this.text    
+            }));
         }
 
         showAlert() {

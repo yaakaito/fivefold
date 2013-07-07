@@ -41,10 +41,6 @@ module fivefold {
     export class ControllerRealizer extends Realizer<Controller> {
         suffix = 'Controller';
     }
-
-    export interface ITemplate {
-        render(param: Object): string;
-    }
  
     export class View {
 
@@ -54,8 +50,6 @@ module fivefold {
         id: string = '';
         className: string = '';
         attributes: Object = {};
-
-        template: ITemplate;
         events: Object;
 
         private ensureFuture: monapt.Future<View>;
@@ -127,16 +121,10 @@ module fivefold {
             });
         }
 
-        render() {            
-            if (this.template) {
-                this.$el.html(this.template.render(this.values()));
-            }
+        render() {
+            ;
         }
-
-        values(): Object {
-            return {};
-        }
-
+        
         // @overridable
         created($el: JQuery) {
             ;

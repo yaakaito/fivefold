@@ -42,10 +42,10 @@ var TestApp;
                 'click .button': 'showAlert'
             };
         }
-        SimpleView.prototype.values = function () {
-            return {
+        SimpleView.prototype.render = function () {
+            this.$el.html(this.template.render({
                 'text': this.text
-            };
+            }));
         };
 
         SimpleView.prototype.showAlert = function () {
