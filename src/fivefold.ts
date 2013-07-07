@@ -41,6 +41,35 @@ module fivefold {
     export class ControllerRealizer extends Realizer<Controller> {
         suffix = 'Controller';
     }
+
+    export class Scenario {
+
+        params(view: View): Object {
+            return {};
+        }
+
+        onBefore(view: View) {
+            ;
+        }
+
+        execute(view: View, params: Object, success: () => void, failure: () => void) {
+            ;
+        }
+
+        onAfter(view: View) {
+            ;
+        }
+
+        executeScenario(view: View) {
+            this.onBefore(view);
+            this.execute(view, this.params(view), () => {
+                this.onAfter(view);    
+            }, () => {
+                this.onAfter(view);
+            });
+        }
+
+    }
  
     export class View {
 
@@ -51,6 +80,7 @@ module fivefold {
         className: string = '';
         attributes: Object = {};
         events: Object;
+        scenarios: Object;
 
         private ensureFuture: monapt.Future<View>;
 
@@ -86,26 +116,31 @@ module fivefold {
         }
 
         private delegateEvents() {
-            if (!this.events) {
-                return;
-            }
+            var events = new monapt.Map<string, string>(this.events);
+            events.mapValues(fn => this[fn]).filter(fn => $.isFunction(fn)).map((event, fn) => {
+                var match = event.match(View.eventSplitter);
+                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));    
+            }).foreach($.proxy(this.delegate, this));
+        }
 
-            var eventMap = new monapt.Map<string, string>(this.events);
-            eventMap.filter((k, method) => $.isFunction(this[method]))
-                    .mapValues<Function>(method => $.proxy(this[method], this))
-                    .map<string, monapt.Tuple2<string, Function>>((event, method) => {
-                        var match = event.match(View.eventSplitter);
-                        return monapt.Tuple2(match[1] + '.fivefold', monapt.Tuple2(match[2], method));
-                    })
-                    .foreach((event, selectorAndMethod) => {
-                        var selector = selectorAndMethod._1, method = selectorAndMethod._2;
-                        if (selector === '') {
-                            this.$el.on(event, method);                            
-                        }
-                        else {
-                            this.$el.on(event, selector, method);
-                        }
-                    });
+        private delegateScenarios() {
+            var scenarios = new monapt.Map<string, Scenario>(this.scenarios);
+            scenarios.mapValues(scenario => () => {
+                scenario.executeScenario(this);
+            }).map((event, fn) => {
+                var match = event.match(View.eventSplitter);
+                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
+            }).foreach($.proxy(this.delegate, this));
+        }
+
+        private delegate(event: string, selectorAndFn: monapt.Tuple2<string, Function>) {
+            var selector = selectorAndFn._1,
+                method   = selectorAndFn._2;
+            if (selector && selector !== '') {
+                this.$el.on(event + '.fivefold', method);
+            } else {
+                this.$el.on(event + '.fivefold', selector, method);
+            }
         }
 
         renderFuture(): monapt.Future<View> {
@@ -124,7 +159,7 @@ module fivefold {
         render() {
             ;
         }
-        
+
         // @overridable
         created($el: JQuery) {
             ;

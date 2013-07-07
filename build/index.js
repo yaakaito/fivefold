@@ -51,6 +51,38 @@ var fivefold;
     })(Realizer);
     fivefold.ControllerRealizer = ControllerRealizer;
 
+    var Scenario = (function () {
+        function Scenario() {
+        }
+        Scenario.prototype.params = function (view) {
+            return {};
+        };
+
+        Scenario.prototype.onBefore = function (view) {
+            ;
+        };
+
+        Scenario.prototype.execute = function (view, params, success, failure) {
+            ;
+        };
+
+        Scenario.prototype.onAfter = function (view) {
+            ;
+        };
+
+        Scenario.prototype.executeScenario = function (view) {
+            var _this = this;
+            this.onBefore(view);
+            this.execute(view, this.params(view), function () {
+                _this.onAfter(view);
+            }, function () {
+                _this.onAfter(view);
+            });
+        };
+        return Scenario;
+    })();
+    fivefold.Scenario = Scenario;
+
     var View = (function () {
         function View() {
             var _this = this;
@@ -89,26 +121,37 @@ var fivefold;
 
         View.prototype.delegateEvents = function () {
             var _this = this;
-            if (!this.events) {
-                return;
-            }
-
-            var eventMap = new monapt.Map(this.events);
-            eventMap.filter(function (k, method) {
-                return $.isFunction(_this[method]);
-            }).mapValues(function (method) {
-                return $.proxy(_this[method], _this);
-            }).map(function (event, method) {
+            var events = new monapt.Map(this.events);
+            events.mapValues(function (fn) {
+                return _this[fn];
+            }).filter(function (fn) {
+                return $.isFunction(fn);
+            }).map(function (event, fn) {
                 var match = event.match(View.eventSplitter);
-                return monapt.Tuple2(match[1] + '.fivefold', monapt.Tuple2(match[2], method));
-            }).foreach(function (event, selectorAndMethod) {
-                var selector = selectorAndMethod._1, method = selectorAndMethod._2;
-                if (selector === '') {
-                    _this.$el.on(event, method);
-                } else {
-                    _this.$el.on(event, selector, method);
-                }
-            });
+                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
+            }).foreach($.proxy(this.delegate, this));
+        };
+
+        View.prototype.delegateScenarios = function () {
+            var _this = this;
+            var scenarios = new monapt.Map(this.scenarios);
+            scenarios.mapValues(function (scenario) {
+                return function () {
+                    scenario.executeScenario(_this);
+                };
+            }).map(function (event, fn) {
+                var match = event.match(View.eventSplitter);
+                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
+            }).foreach($.proxy(this.delegate, this));
+        };
+
+        View.prototype.delegate = function (event, selectorAndFn) {
+            var selector = selectorAndFn._1, method = selectorAndFn._2;
+            if (selector && selector !== '') {
+                this.$el.on(event + '.fivefold', method);
+            } else {
+                this.$el.on(event + '.fivefold', selector, method);
+            }
         };
 
         View.prototype.renderFuture = function () {
@@ -126,13 +169,7 @@ var fivefold;
         };
 
         View.prototype.render = function () {
-            if (this.template) {
-                this.$el.html(this.template.render(this.values()));
-            }
-        };
-
-        View.prototype.values = function () {
-            return {};
+            ;
         };
 
         View.prototype.created = function ($el) {
