@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <title>View Init Test</title>
+  </head>
+  <body>
+  </body>
+  <script src="../../components/jquery/jquery.min.js"></script>
+  <script>
+  $(function() {
+    var body = $(document.body);
+    for(var i = 0, l = 10000; i < l; i++) {
+      console.log(i);
+      setTimeout(function() {
+        body.append($('<p>aaa</p>'));
+        console.log('created');
+      }, 0);
+    }
+  });
+  </script>
+</html>

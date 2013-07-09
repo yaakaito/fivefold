@@ -33,6 +33,12 @@ module TestApp {
 
         tagName = 'p';
 
+        static createWithText(text) {
+            var view: SimpleView = this.create();
+            view.text = text;
+            return view;
+        }
+
         render() {
             this.$el.html(this.template.render({
                 'text': this.text    
@@ -50,20 +56,20 @@ module TestApp {
         index(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
                 setTimeout(() => {
-                    p.success(SimpleView.create());
+                    p.success(SimpleView.createWithText('index'));
                 }, 1000);
             });
         }
 
         hoge(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
-                p.success(SimpleView.create());
+                p.success(SimpleView.createWithText('hoge'));
             });
         }
 
         fuga(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
-                p.success(SimpleView.create());
+                p.success(SimpleView.createWithText('fuga'));
             });
         }
     }

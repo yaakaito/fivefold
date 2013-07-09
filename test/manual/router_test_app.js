@@ -42,6 +42,12 @@ var TestApp;
             this.text = '';
             this.tagName = 'p';
         }
+        SimpleView.createWithText = function (text) {
+            var view = this.create();
+            view.text = text;
+            return view;
+        };
+
         SimpleView.prototype.render = function () {
             this.$el.html(this.template.render({
                 'text': this.text
@@ -64,20 +70,20 @@ var TestApp;
         SimpleController.prototype.index = function () {
             return fivefold.actionFuture(function (p) {
                 setTimeout(function () {
-                    p.success(SimpleView.create());
+                    p.success(SimpleView.createWithText('index'));
                 }, 1000);
             });
         };
 
         SimpleController.prototype.hoge = function () {
             return fivefold.actionFuture(function (p) {
-                p.success(SimpleView.create());
+                p.success(SimpleView.createWithText('hoge'));
             });
         };
 
         SimpleController.prototype.fuga = function () {
             return fivefold.actionFuture(function (p) {
-                p.success(SimpleView.create());
+                p.success(SimpleView.createWithText('fuga'));
             });
         };
         return SimpleController;
