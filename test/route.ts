@@ -19,29 +19,22 @@ module spec {
 
     describe('RouteRepository', () => {
 
-        describe('When after initialized', () => {
-            var repo = new fivefold.RouteRepository();
+        var repo: fivefold.RouteRepository;
+        beforeEach(() => {
+            repo = new fivefold.RouteRepository();
+        });
 
-            describe('#routeForRelativeURL', () => {
-                it('should throws `No such parser` Error', () => {
-                    (() => {
-                        repo.routeForRelativeURL('/');
-                    }).should.throw('No such parser');
-                });
-            });
-
-            describe('#routeForKey', () => {
-                it('should throws `No such parser` Error', () => {
-                    (() => {
-                        repo.routeForKey('key');
-                    }).should.throw('No such parser');
-                });
+        describe('#registerRoute', () => {
+            it('can register new route', () => {
+                var route = new fivefold.Route('/', 'spec.Target', 'hoge');
+                repo.registerRoute(route);
+                var tuple = repo.routesMap().head().get();
+                tuple._1.should.equal('/');
+                tuple._2.should.eql(route);
             });
         });
 
-        describe('When setted parerFunction', () => {
 
-        });
 
     });
 }
