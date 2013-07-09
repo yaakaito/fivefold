@@ -125,6 +125,7 @@ module fivefold {
             var view: View = new this();
             ensureElement(view);
             delegateEvents(view);
+            delegateScenario(view);
             return view;
         }
 
@@ -152,6 +153,7 @@ module fivefold {
             var layout: Layout = new this();
             ensureElement(layout);
             delegateEvents(layout);
+            delegateScenario(layout);
             return layout;
         }
 
