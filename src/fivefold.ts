@@ -91,9 +91,9 @@ module fivefold {
 
     function delegateEvents(view: View) {
         var events = new monapt.Map<string, string>(view.events);
-        events.mapValues(fn => this[fn]).filter(fn => $.isFunction(fn)).map((event, fn) => {
+        events.mapValues(fn => view[fn]).filter((key, fn) => $.isFunction(fn)).map((event, fn) => {
             var match = event.match(View.eventSplitter);
-            return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));    
+            return monapt.Tuple2(match[1], monapt.Tuple2(match[2], $.proxy(fn, view)));    
         }).foreach((e, t) => view.delegate(e, t._1, t._2));
     }
 
