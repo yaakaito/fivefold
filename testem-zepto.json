@@ -1,0 +1,14 @@
+{
+    "framework" : "mocha+chai",
+    "before_tests" : "grunt compile",
+    "src_files" : [
+        "src/**/*.ts",
+        "test/**/*.ts"
+    ],
+    "serve_files" : [
+        "components/monapt/monapt.js",
+        "components/zepto/zepto.js",
+        "compiled/src/**/*.js",
+        "compiled/test/**/*.js"
+    ]
+}
