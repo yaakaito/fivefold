@@ -3,6 +3,7 @@
 module TestApp {
 
     export class SimpleLayout extends fivefold.Layout {
+
         $content = $('#contents');
 
         constructor() {
@@ -24,15 +25,13 @@ module TestApp {
     }
 
     export class SimpleView extends fivefold.View {
-        tagName = 'p';
         template = new SimpleTemplate();
         events = {
             'click .button' : 'showAlert'
-        }
+        };
+        text = '';
 
-        constructor(private text: string) {
-            super();
-        }
+        tagName = 'p';
 
         render() {
             this.$el.html(this.template.render({
@@ -46,25 +45,25 @@ module TestApp {
     }
 
     export class SimpleController extends fivefold.Controller {
-        layout = new SimpleLayout();
+        layout = SimpleLayout.create();
 
         index(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
                 setTimeout(() => {
-                    p.success(new SimpleView('index'));
+                    p.success(SimpleView.create());
                 }, 1000);
             });
         }
 
         hoge(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
-                p.success(new SimpleView('hoge'));
+                p.success(SimpleView.create());
             });
         }
 
         fuga(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
-                p.success(new SimpleView('fuga'));
+                p.success(SimpleView.create());
             });
         }
     }

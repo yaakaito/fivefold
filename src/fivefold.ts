@@ -68,7 +68,43 @@ module fivefold {
                 this.onAfter(view);
             });
         }
+    }
 
+    var uniqId = 0;
+    function viewUniqId(): string {
+        return 'view' + uniqId++;
+    }
+
+    function ensureElement(view: View) {
+        if (view.$el) {
+            return ;
+        }
+        var attributes = {};
+        for (var key in view.attributes) {
+            attributes[key] = view.attributes[key];
+        }
+        attributes['id'] = view.id;
+        attributes['class'] = view.className;
+            
+        view.$el =  $('<' + this.tagName + '>').attr(attributes);
+    }
+
+    function delegateEvents(view: View) {
+        var events = new monapt.Map<string, string>(view.events);
+        events.mapValues(fn => this[fn]).filter(fn => $.isFunction(fn)).map((event, fn) => {
+            var match = event.match(View.eventSplitter);
+            return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));    
+        }).foreach((e, t) => view.delegate(e, t._1, t._2));
+    }
+
+    function delegateScenarios(view: View) {
+        var scenarios = new monapt.Map<string, Scenario>(view.scenarios);
+        scenarios.mapValues(scenario => () => {
+            scenario.executeScenario(this);
+        }).map((event, fn) => {
+            var match = event.match(View.eventSplitter);
+            return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
+        }).foreach((e, t) => view.delegate(e, t._1, t._2));
     }
  
     export class View {
@@ -82,86 +118,28 @@ module fivefold {
         events: Object;
         scenarios: Object;
 
-        private ensureFuture: monapt.Future<View>;
+        private cid = viewUniqId();
 
-        constructor() {
-            this.ensureFuture = monapt.future<View>(p => {
-                setTimeout(() => {
-                    try {
-                        this.ensureElement();
-                        this.delegateEvents();
-                        this.created(this.$el);                        
-                        p.success(this);
-                    }
-                    catch (e) {
-                        p.failure(e);
-                    }
-                }, 0);                
-            });
+
+        static create(): View {
+            var view: View = new this();
+            ensureElement(view);
+            delegateEvents(view);
+            return view;
         }
 
-        private ensureElement() {
-            if (this.$el) {
-                return ;
-            }
-
-            var attributes = {};
-            for (var key in this.attributes) {
-                attributes[key] = this.attributes[key];
-            }
-            attributes['id'] = this.id;
-            attributes['class'] = this.className;
-            
-            this.$el =  $('<' + this.tagName + '>').attr(attributes);
+        delegate(event: string, fn: Function);
+        delegate(event: string, selector:string, fn: Function);
+        delegate(event: string, fnOrSelector: any, fn?: any) {
+            var evt = event + '.ff' + this.cid;
+            this.$el.on.call(this.$el, evt, fnOrSelector, fn);
         }
 
-        private delegateEvents() {
-            var events = new monapt.Map<string, string>(this.events);
-            events.mapValues(fn => this[fn]).filter(fn => $.isFunction(fn)).map((event, fn) => {
-                var match = event.match(View.eventSplitter);
-                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));    
-            }).foreach($.proxy(this.delegate, this));
-        }
-
-        private delegateScenarios() {
-            var scenarios = new monapt.Map<string, Scenario>(this.scenarios);
-            scenarios.mapValues(scenario => () => {
-                scenario.executeScenario(this);
-            }).map((event, fn) => {
-                var match = event.match(View.eventSplitter);
-                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
-            }).foreach($.proxy(this.delegate, this));
-        }
-
-        private delegate(event: string, selectorAndFn: monapt.Tuple2<string, Function>) {
-            var selector = selectorAndFn._1,
-                method   = selectorAndFn._2;
-            if (selector && selector !== '') {
-                this.$el.on(event + '.fivefold', method);
-            } else {
-                this.$el.on(event + '.fivefold', selector, method);
-            }
-        }
-
-        renderFuture(): monapt.Future<View> {
-            return this.ensureFuture.map<View>((view, p) => {
-                setTimeout(() => {
-                    try {
-                        this.render();
-                        p.success(this);
-                    } catch (e) {
-                        p.failure(e);
-                    }
-                }, 0);
-            });
+        undelegateAll() {
+            this.$el.off('.ff' + this.cid);
         }
 
         render() {
-            ;
-        }
-
-        // @overridable
-        created($el: JQuery) {
             ;
         }
     }
@@ -170,12 +148,15 @@ module fivefold {
         $el = $(document.body);
         $content = $(document.body);
 
-        beforeDisplayContent() {
-            ;
+        static create(): Layout {
+            var layout: Layout = new this();
+            ensureElement(layout);
+            delegateEvents(layout);
+            return layout;
         }
 
-        renderFuture(): monapt.Future<Layout> {
-            return super.renderFuture();
+        beforeDisplayContent() {
+            ;
         }
 
         display(elem: JQuery) {
@@ -183,7 +164,7 @@ module fivefold {
         }
     }
 
-    var layout = new Layout();
+    var defaultLayout = new Layout();
 
     export class ActionFuture<V extends View> extends monapt.Future<V> { }
 
@@ -193,26 +174,18 @@ module fivefold {
 
     export class Controller {
 
-        public layout: Layout = layout;
+        public layout: Layout = defaultLayout;
 
-        dispatchFuture(method: string, options: Object): monapt.Future<View> {
+        dispatch(method: string, options: Object) {
 
-            var renderLayoutFuture = this.layout.renderFuture();
+            this.layout.render();
             var actionFuture = <ActionFuture<View>>this[method](options);
-
-            return actionFuture.flatMap<View>(view => {
-                return renderLayoutFuture.map<View>((layout, promise) => {
-                    setTimeout(() => {
-                        var future = view.renderFuture();    
-                        future.onSuccess(view => {
-                            layout.beforeDisplayContent(); 
-                            layout.display(view.$el);   
-                            promise.success(view);
-                        });
-                        future.onFailure(e => promise.failure(e));
-                    });
-                });
+            actionFuture.onSuccess(view => {
+                view.render();
+                this.layout.beforeDisplayContent();
+                this.layout.display(view.$el);
             });
+            actionFuture.onFailure(error => console.log(error));
 
         }
     }
@@ -337,7 +310,7 @@ module fivefold {
 
         dispatch(route: Route, options: Object) {
             controllerRepository.controllerForRoute(route).match({
-                Some: controller => controller.dispatchFuture(route.method, options),
+                Some: controller => controller.dispatch(route.method, options),
                 None: () => console.error('Dispatch failure.')
             });
         }

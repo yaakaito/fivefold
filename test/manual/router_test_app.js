@@ -33,14 +33,14 @@ var TestApp;
 
     var SimpleView = (function (_super) {
         __extends(SimpleView, _super);
-        function SimpleView(text) {
-            _super.call(this);
-            this.text = text;
-            this.tagName = 'p';
+        function SimpleView() {
+            _super.apply(this, arguments);
             this.template = new SimpleTemplate();
             this.events = {
                 'click .button': 'showAlert'
             };
+            this.text = '';
+            this.tagName = 'p';
         }
         SimpleView.prototype.render = function () {
             this.$el.html(this.template.render({
@@ -59,25 +59,25 @@ var TestApp;
         __extends(SimpleController, _super);
         function SimpleController() {
             _super.apply(this, arguments);
-            this.layout = new SimpleLayout();
+            this.layout = SimpleLayout.create();
         }
         SimpleController.prototype.index = function () {
             return fivefold.actionFuture(function (p) {
                 setTimeout(function () {
-                    p.success(new SimpleView('index'));
+                    p.success(SimpleView.create());
                 }, 1000);
             });
         };
 
         SimpleController.prototype.hoge = function () {
             return fivefold.actionFuture(function (p) {
-                p.success(new SimpleView('hoge'));
+                p.success(SimpleView.create());
             });
         };
 
         SimpleController.prototype.fuga = function () {
             return fivefold.actionFuture(function (p) {
-                p.success(new SimpleView('fuga'));
+                p.success(SimpleView.create());
             });
         };
         return SimpleController;
