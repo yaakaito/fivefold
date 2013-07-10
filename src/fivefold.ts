@@ -111,6 +111,7 @@ module fivefold {
  
     export class View {
 
+        private cid = viewUniqId();
         $el: JQuery = null;
         tagName: string = 'div';
         id: string = '';
@@ -118,9 +119,6 @@ module fivefold {
         attributes: Object = {};
         events: Object;
         scenarios: Object;
-
-        private cid = viewUniqId();
-
 
         static create(): View {
             var view: View = new this();
