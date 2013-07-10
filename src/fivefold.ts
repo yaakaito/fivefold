@@ -89,10 +89,12 @@ module fivefold {
         view.$el =  $('<' + this.tagName + '>').attr(attributes);
     }
 
+
+    var eventSplitter = /^(\S+)\s*(.*)$/;
     function delegateEvents(view: View) {
         var events = new monapt.Map<string, string>(view.events);
         events.mapValues(fn => view[fn]).filter((key, fn) => $.isFunction(fn)).map((event, fn) => {
-            var match = event.match(View.eventSplitter);
+            var match = event.match(eventSplitter);
             return monapt.Tuple2(match[1], monapt.Tuple2(match[2], $.proxy(fn, view)));    
         }).foreach((e, t) => view.delegate(e, t._1, t._2));
     }
@@ -102,14 +104,13 @@ module fivefold {
         scenarios.mapValues(scenario => () => {
             scenario.executeScenario(this);
         }).map((event, fn) => {
-            var match = event.match(View.eventSplitter);
+            var match = event.match(eventSplitter);
             return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
         }).foreach((e, t) => view.delegate(e, t._1, t._2));
     }
  
     export class View {
 
-        static eventSplitter = /^(\S+)\s*(.*)$/;
         $el: JQuery = null;
         tagName: string = 'div';
         id: string = '';

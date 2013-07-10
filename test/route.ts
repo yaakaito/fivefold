@@ -33,8 +33,5 @@ module spec {
                 tuple._2.should.eql(route);
             });
         });
-
-
-
     });
 }
