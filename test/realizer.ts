@@ -23,7 +23,5 @@ module spec {
                 realize.isSuccess.should.be.false;    
             })
         });
-
-
     });
 }
