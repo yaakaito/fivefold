@@ -6,8 +6,8 @@
         "test/**/*.ts"
     ],
     "serve_files" : [
-        "components/monapt/monapt.js",
-        "components/zepto/zepto.js",
+        "bower_components/monapt/monapt.js",
+        "bower_components/zepto/zepto.js",
         "compiled/src/**/*.js",
         "compiled/test/**/*.js"
     ]
