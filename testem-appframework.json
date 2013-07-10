@@ -1,0 +1,14 @@
+{
+    "framework" : "mocha+chai",
+    "before_tests" : "grunt compile",
+    "src_files" : [
+        "src/**/*.ts",
+        "test/**/*.ts"
+    ],
+    "serve_files" : [
+        "bower_components/monapt/monapt.js",
+        "bower_components/appframework/appframework.js",
+        "compiled/src/**/*.js",
+        "compiled/test/**/*.js"
+    ]
+}

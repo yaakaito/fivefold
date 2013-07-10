@@ -6,6 +6,7 @@
   },
   "devDependencies": {
     "jquery": "~2.0.2",
-    "zepto": "~1.0.0"
+    "zepto": "~1.0.0",
+    "appframework": "git@github.com:yaakaito/appframework.git#~2.0.0"
   }
 }
