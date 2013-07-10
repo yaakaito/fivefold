@@ -14,7 +14,7 @@ function ensureElement(view: View) {
     attributes['id'] = view.id;
     attributes['class'] = view.className;
         
-    view.$el =  $('<' + this.tagName + '>').attr(attributes);
+    view.$el =  $('<' + view.tagName + '>').attr(attributes);
 }
 
 
