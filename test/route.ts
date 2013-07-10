@@ -16,22 +16,4 @@ module spec {
             route.method.should.equal('hoge');
         });
     });
-
-    describe('RouteRepository', () => {
-
-        var repo: fivefold.RouteRepository;
-        beforeEach(() => {
-            repo = new fivefold.RouteRepository();
-        });
-
-        describe('#registerRoute', () => {
-            it('can register new route', () => {
-                var route = new fivefold.Route('/', 'spec.Target', 'hoge');
-                repo.registerRoute(route);
-                var tuple = repo.routesMap().head().get();
-                tuple._1.should.equal('/');
-                tuple._2.should.eql(route);
-            });
-        });
-    });
 }

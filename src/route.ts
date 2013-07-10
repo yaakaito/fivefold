@@ -5,7 +5,7 @@ export class Route {
                 public method: string) { }
 }
 
-export class RouteRepository {
+class RouteRepository {
     private routes: Object = {};
 
     routesMap(): monapt.Map<string, Route> {
