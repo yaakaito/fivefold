@@ -11,8 +11,14 @@ function ensureElement(view: View) {
     for (var key in view.attributes) {
         attributes[key] = view.attributes[key];
     }
-    attributes['id'] = view.id;
-    attributes['class'] = view.className;
+
+    if (view.id) {
+        attributes['id'] = view.id;
+    }
+
+    if (view.className) {
+        attributes['class'] = view.className;
+    }
         
     view.$el =  $('<' + view.tagName + '>').attr(attributes);
 }

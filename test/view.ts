@@ -6,7 +6,7 @@ module spec {
     chai.should();
 
     describe('View', () => {
-        describe('on create', () => {
+        describe('on create default', () => {
             var view: fivefold.View;
             beforeEach(() => {
                 view = fivefold.View.create();
@@ -27,6 +27,14 @@ module spec {
 
                 it('not has any classes', () => {
                     view.$el[0].classList.should.have.length(0);
+                });
+
+                it('not has a id', () => {
+                    view.$el[0].id.should.be.equal(''); 
+                })
+
+                it('not has any attributes', () => {
+                    view.$el[0].attributes.length.should.be.empty;
                 });
             });
         });
