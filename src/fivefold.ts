@@ -4,6 +4,21 @@
 
 module fivefold {
 
+    // Utilities
+    function isFunction(obj: any): boolean {
+        return typeof obj === "function" && !(obj instanceof RegExp)
+    }
+
+    function proxy(fn : (...args: any[]) => any, context: any, ...args: any[]): any {
+        if (!isFunction(fn)) {
+            return undefined;
+        }
+
+        return function(){
+            return fn.apply( context || this, args);
+        }
+    }
+
     export class Realizer<T> {
         prefix = '';
         suffix = '';
@@ -93,9 +108,9 @@ module fivefold {
     var eventSplitter = /^(\S+)\s*(.*)$/;
     function delegateEvents(view: View) {
         var events = new monapt.Map<string, string>(view.events);
-        events.mapValues(fn => view[fn]).filter((key, fn) => $.isFunction(fn)).map((event, fn) => {
+        events.mapValues(fn => view[fn]).filter((key, fn) => isFunction(fn)).map((event, fn) => {
             var match = event.match(eventSplitter);
-            return monapt.Tuple2(match[1], monapt.Tuple2(match[2], $.proxy(fn, view)));    
+            return monapt.Tuple2(match[1], monapt.Tuple2(match[2], proxy(fn, view)));    
         }).foreach((e, t) => view.delegate(e, t._1, t._2));
     }
 
