@@ -8,7 +8,7 @@
     "serve_files" : [
         "bower_components/monapt/monapt.js",
         "bower_components/jquery/jquery.js",
-        "compiled/src/**/*.js",
-        "compiled/test/**/*.js"
+        "compiled/fivefold.js",
+        "compiled/test/**.js"
     ]
 }
