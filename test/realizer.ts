@@ -1,6 +1,6 @@
 /// <reference path="../definitions/mocha/mocha.d.ts" />
 /// <reference path="../definitions/chai/chai.d.ts" />
-/// <reference path="../src/fivefold.ts" />
+/// <reference path="../compiled/fivefold.ts" />
 /// <reference path="./fakes.ts" />
 
 module spec {

@@ -5,10 +5,8 @@ module.exports = (grunt) ->
         pkg: grunt.file.readJSON 'package.json'
         typescript:
             compile:
-                src: ['src/**/*.ts']
-                dest: 'compiled'
-                # src: ['src/index.ts']
-                # dest: 'compiled/src/index.js'
+                src: ['compiled/fivefold.ts']
+                dest: 'compiled/fivefold.js'
                 options:
                     module: 'commonjs'
                     target: 'es3'
@@ -28,42 +26,43 @@ module.exports = (grunt) ->
                 src: ['build/**/*.js']
 
         concat:
-            dist:
-                src: ['compiled/src/**/*.js']
-                dest: 'build/index.js'
-            options:
-                separator: ';'
+            fivefold:
+                src: [
+                    'src/intro.ts'
+                    'src/util/is-function.ts'
+                    'src/util/proxy.ts'
+                    'src/util/realizer.ts'
+                    'src/scenario.ts'
+                    'src/view.ts'
+                    'src/layout.ts'
+                    'src/controller.ts'
+                    'src/action.ts'
+                    'src/controller.ts'
+                    'src/route.ts'
+                    'src/route-resolver.ts'
+                    'src/router.ts'
+                    'src/outro.ts'
+                ]
+                dest: 'compiled/fivefold.ts'
+
+        copy:
+            js:
+                files: [
+                        expand: true
+                        cwd: 'compiled'
+                        src: 'fivefold.js'
+                        dest: 'build'
+                    ,
+                        expand: true
+                        cwd: 'compiled'
+                        src: 'fivefold.d.ts'
+                        dest: 'build'
+                ]
 
         uglify:
             min:
                 files:
-                    'build/index.min.js': ['build/index.js']
-            ###
-            options:
-                mangle:
-                    expect: ['jQuery']
-                sourceMap: 'build/source-map.js'
-            ###
-
-        copy:
-            public:
-                files: [
-                        expand: true
-                        cwd: 'build'
-                        src: '**'
-                        dest: 'public/javascript'
-                    ,
-                        expand: true
-                        cwd: 'res'
-                        src: '**'
-                        dest: 'public/'
-                ]
-        connect:
-            preview:
-                options:
-                    port: 9000
-                    base: 'public'
-
+                    'build/fivefold.min.js': ['build/fivefold.js']
         regarde:
             src:
                 files: ['src/**/*.*']
@@ -78,9 +77,6 @@ module.exports = (grunt) ->
     grunt.loadNpmTasks 'grunt-contrib-connect'
     grunt.loadNpmTasks 'grunt-regarde'
 
-    grunt.registerTask 'compile', ['typescript:compile', 'typescript:test']
+    grunt.registerTask 'compile', ['concat:fivefold','typescript:compile', 'typescript:test']
     grunt.registerTask 'default', ['compile']
-    grunt.registerTask 'build', ['typescript:compile', 'concat', 'uglify']
-    grunt.registerTask 'generate', ['compile', 'build', 'copy:public']
-    grunt.registerTask 'preview', ['generate', 'connect:preview', 'regarde']
-
+    grunt.registerTask 'build', ['compile', 'copy:js', 'uglify']

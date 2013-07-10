@@ -1,4 +1,4 @@
-/// <reference path="../../src/fivefold.ts" />
+/// <reference path="../../compiled/fivefold.ts" />
 
 module TestApp {
 
