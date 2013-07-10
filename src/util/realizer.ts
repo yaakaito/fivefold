@@ -1,7 +1,8 @@
+var  realizerPathSplitter = /\./;
+    
 export class Realizer<T> {
     prefix = '';
     suffix = '';
-    static pathSplitter = /\./;
     
     realizeTry(pathOrName: string): monapt.Try<T> {
         return monapt.Try<T>(() => this.realize(pathOrName));
@@ -13,7 +14,7 @@ export class Realizer<T> {
     }
 
     parsePathOrName(pathOrName: string): string[] {
-        return pathOrName.split(Realizer.pathSplitter);
+        return pathOrName.split(realizerPathSplitter);
     }
 
     getClass(pathComponents: string[]): new() => T {
