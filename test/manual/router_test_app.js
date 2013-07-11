@@ -52,6 +52,7 @@ var TestApp;
             this.$el.html(this.template.render({
                 'text': this.text
             }));
+            return this;
         };
 
         SimpleView.prototype.showAlert = function () {

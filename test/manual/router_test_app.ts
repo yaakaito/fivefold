@@ -39,10 +39,11 @@ module TestApp {
             return view;
         }
 
-        render() {
+        render(): SimpleView {
             this.$el.html(this.template.render({
                 'text': this.text    
             }));
+            return  this;
         }
 
         showAlert() {

@@ -5,8 +5,8 @@ export class Layout extends View {
     static create(): Layout {
         var layout: Layout = new this();
         ensureElement(layout);
-        delegateEvents(layout);
-        delegateScenarios(layout);
+        layout.delegateEvents();
+        layout.delegateScenarios();
         return layout;
     }
 
