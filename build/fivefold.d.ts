@@ -2,11 +2,14 @@ declare module fivefold {
     class Realizer<T> {
         public prefix: string;
         public suffix: string;
-        static pathSplitter: RegExp;
         public realizeTry(pathOrName: string): monapt.Try<T>;
         private realize(pathOrName);
         public parsePathOrName(pathOrName: string): string[];
         public getClass(pathComponents: string[]): new() => Controller;
+    }
+    enum RouteError {
+        NotFound,
+        DispatchFailure,
     }
     class Scenario {
         public params(view: View): Object;
@@ -25,10 +28,12 @@ declare module fivefold {
         public events: Object;
         public scenarios: Object;
         static create(): View;
+        public delegateEvents(): View;
+        public delegateScenarios(): View;
         public delegate(event: string, fn: Function);
         public delegate(event: string, selector: string, fn: Function);
         public undelegateAll(): void;
-        public render(): void;
+        public render(): View;
     }
     class Layout extends View {
         public $el: JQuery;
@@ -53,10 +58,15 @@ declare module fivefold {
         public method: string;
         constructor(pattern: string, controller: string, method: string);
     }
-    class RouteRepository {
-        private routes;
-        public routesMap(): monapt.Map<string, fivefold.Route>;
-        public registerRoute(route: Route): void;
+    interface IRouteRegister {
+        (pattern: string, controllerAndMethod: string);
+        (pattern: string, redirect: {
+            redirectTo: string;
+        });
+    }
+    interface IErrorRouteRegister {
+        (code: RouteError, controllerAndMethod: string);
+        (errorMessage: string, controllerAndMethod: string);
     }
     interface IRouteParser {
         (relativeURL: string): monapt.Option<monapt.Tuple2<string, Object>>;
@@ -73,12 +83,6 @@ declare module fivefold {
         public parse(relativeURL: string): IRouteResolverParseResult;
         public match(matched: string, pattern: string): boolean;
     }
-    interface IRouteRegister {
-        (pattern: string, controllerAndMethod: string);
-        (pattern: string, redirect: {
-            redirectTo: string;
-        });
-    }
     class Router {
         private resolver;
         private dispatcher;
@@ -86,8 +90,10 @@ declare module fivefold {
         private start();
         private onHashChange();
         public routes(routes: (match: IRouteRegister) => void): void;
+        public errorRoutes(routes: (match: IErrorRouteRegister) => void): void;
     }
     class Dispatcher {
         public dispatch(route: Route, options: Object): void;
+        public dispatchError(error: Error): void;
     }
 }
