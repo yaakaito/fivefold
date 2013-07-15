@@ -97,6 +97,12 @@ module TestApp {
                 match('/hoge', 'TestApp.Simple::hoge');
                 match('/fuga', 'TestApp.Simple::fuga');
             });
+
+            router.errorRoutes(match => {
+                match(fivefold.RouteError.NotFound, 'TestApp.Error::for404');
+                match(fivefold.RouteError.DispatchFailure, 'TestApp.Error::for503');
+                match('On offline', 'TestApp.Network::offline');
+            });
         }
     }
 

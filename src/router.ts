@@ -1,22 +1,4 @@
-export interface IRouteRegister {
-    (pattern :string, controllerAndMethod: string);
-    (pattern :string, redirect: { redirectTo: string; });
-}
 
-var routeSplitter = /::/;
-
-function routeRegisterFn(pattern :string, controllerAndMethod: string): void;
-function routeRegisterFn(pattern :string, redirect: { redirectTo: string; }): void;
-function routeRegisterFn(pattern :string, controllerOrRedirect: any): void {
-    var repository = routeRepository;
-    if (typeof controllerOrRedirect == "string") {
-        var comp = controllerOrRedirect.split(routeSplitter);
-        repository.registerRoute( new Route(pattern, comp[0], comp[1]));
-    } else {
-        // redirect
-        // repository.registerRoute( new Route('/index', 'Controller'))
-    }
-}
 
 export class Router {
 
@@ -35,25 +17,34 @@ export class Router {
 
     private onHashChange() {
         var relativeURL: string = location.hash;
-        this.resolver.resolve(relativeURL, routeRepository.routesMap())
-                .match({
-                    Some: t => this.dispatcher.dispatch(t._1, t._2),
-                    None: () => console.error('No route...')
-                });
+        this.resolver.resolve(relativeURL, routeRepository.routesMap()).match({
+            Some: t => this.dispatcher.dispatch(t._1, t._2),
+            None: () => this.dispatcher.dispatchError(NotFound())
+        });
     }
 
     routes(routes: (match: IRouteRegister) => void) { 
         routes(routeRegisterFn);
+    }
+
+    errorRoutes(routes: (match: IErrorRouteRegister) => void) {
+        routes(errorRouteRegisterFn);
     }
 }
 
 export class Dispatcher {
 
     dispatch(route: Route, options: Object) {
-        controllerRepository.controllerForRoute(route).match({
-            Some: controller => controller.dispatch(route.method, options),
-            None: () => console.error('Dispatch failure.')
+        controllerRepository.controllerForRouteTry(route).match({
+            Success: controller => controller.dispatch(route.method, options),
+            Failure: e => this.dispatchError(e)
         });
     }
 
+    dispatchError(error: Error) {
+        errorRouteRepository.routeForError(error).match({
+            Some: route => { this.dispatch(route, {}) },
+            None: () => { throw new Error('Route not found.') }
+        });
+    }
 }

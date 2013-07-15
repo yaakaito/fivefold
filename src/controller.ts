@@ -18,11 +18,9 @@ export class Controller {
 
 class ControllerRepository {
 
-    controllerForRoute(route: Route): monapt.Option<Controller> {
+    controllerForRouteTry(route: Route): monapt.Try<Controller> {
         var realizer = new ControllerRealizer();
-        return realizer.realizeTry(route.controller)
-                .map<monapt.Option<Controller>>(controller => new monapt.Some(controller))
-                .getOrElse(() => new monapt.None<Controller>());
+        return realizer.realizeTry(route.controller).filter(controller => controller instanceof Controller);
     }
 }
 
