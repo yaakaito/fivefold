@@ -428,7 +428,7 @@ var fivefold;
                     _this.dispatch(route, {});
                 },
                 None: function () {
-                    throw new Error('Route not found.');
+                    throw new Error('Route not found: ' + error.message);
                 }
             });
         };

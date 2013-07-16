@@ -63,7 +63,7 @@ function errorRouteRegisterFn(code: any, controllerAndMethod: string) {
     var route: Route = null;
     if (typeof code == 'number')
         route = new Route('fivefold' + code, comp[0], comp[1]);
-    else
+    else 
         route = new Route(code, comp[0], comp[1]);
     repository.registerRoute(route);
 }

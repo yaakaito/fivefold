@@ -44,7 +44,7 @@ export class Dispatcher {
     dispatchError(error: Error) {
         errorRouteRepository.routeForError(error).match({
             Some: route => { this.dispatch(route, {}) },
-            None: () => { throw new Error('Route not found.') }
+            None: () => { throw new Error('Route not found: ' + error.message) }
         });
     }
 }
