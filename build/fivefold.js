@@ -147,6 +147,7 @@ var fivefold;
 
         View.prototype.delegateEvents = function () {
             var _this = this;
+            this.undelegateAll();
             var events = new monapt.Map(this.events);
             events.mapValues(function (fn) {
                 return _this[fn];
