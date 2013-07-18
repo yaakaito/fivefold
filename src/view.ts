@@ -45,6 +45,7 @@ export class View {
     }
 
     delegateEvents(): View {
+        this.undelegateAll();
         var events = new monapt.Map<string, string>(this.events);
         events.mapValues(fn => this[fn]).filter((key, fn) => isFunction(fn)).map((event, fn) => {
             var match = event.match(eventSplitter);
