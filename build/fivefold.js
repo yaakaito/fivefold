@@ -70,37 +70,6 @@ var fivefold;
     var DispatchFailure = function () {
         return new Error('fivefold' + RouteError.DispatchFailure);
     };
-    var Scenario = (function () {
-        function Scenario() {
-        }
-        Scenario.prototype.params = function (view) {
-            return {};
-        };
-
-        Scenario.prototype.onBefore = function (view) {
-            ;
-        };
-
-        Scenario.prototype.execute = function (view, params, success, failure) {
-            ;
-        };
-
-        Scenario.prototype.onAfter = function (view) {
-            ;
-        };
-
-        Scenario.prototype.executeScenario = function (view) {
-            var _this = this;
-            this.onBefore(view);
-            this.execute(view, this.params(view), function () {
-                _this.onAfter(view);
-            }, function () {
-                _this.onAfter(view);
-            });
-        };
-        return Scenario;
-    })();
-    fivefold.Scenario = Scenario;
     var uniqId = 0;
     function viewUniqId() {
         return 'view' + uniqId++;
@@ -141,7 +110,6 @@ var fivefold;
             var view = new this();
             ensureElement(view);
             view.delegateEvents();
-            view.delegateScenarios();
             return view;
         };
 
@@ -156,22 +124,6 @@ var fivefold;
             }).map(function (event, fn) {
                 var match = event.match(eventSplitter);
                 return monapt.Tuple2(match[1], monapt.Tuple2(match[2], proxy(fn, _this)));
-            }).foreach(function (e, t) {
-                return _this.delegate(e, t._1, t._2);
-            });
-            return this;
-        };
-
-        View.prototype.delegateScenarios = function () {
-            var _this = this;
-            var scenarios = new monapt.Map(this.scenarios);
-            scenarios.mapValues(function (scenario) {
-                return function () {
-                    scenario.executeScenario(_this);
-                };
-            }).map(function (event, fn) {
-                var match = event.match(eventSplitter);
-                return monapt.Tuple2(match[1], monapt.Tuple2(match[2], fn));
             }).foreach(function (e, t) {
                 return _this.delegate(e, t._1, t._2);
             });
@@ -204,7 +156,6 @@ var fivefold;
             var layout = new this();
             ensureElement(layout);
             layout.delegateEvents();
-            layout.delegateScenarios();
             return layout;
         };
 

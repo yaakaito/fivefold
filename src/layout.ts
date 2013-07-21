@@ -6,7 +6,6 @@ export class Layout extends View {
         var layout: Layout = new this();
         ensureElement(layout);
         layout.delegateEvents();
-        layout.delegateScenarios();
         return layout;
     }
 

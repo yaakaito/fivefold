@@ -11,13 +11,6 @@ declare module fivefold {
         NotFound,
         DispatchFailure,
     }
-    class Scenario {
-        public params(view: View): Object;
-        public onBefore(view: View): void;
-        public execute(view: View, params: Object, success: () => void, failure: () => void): void;
-        public onAfter(view: View): void;
-        public executeScenario(view: View): void;
-    }
     class View {
         private cid;
         public $el: JQuery;
@@ -26,10 +19,8 @@ declare module fivefold {
         public className: string;
         public attributes: Object;
         public events: Object;
-        public scenarios: Object;
         static create(): View;
         public delegateEvents(): View;
-        public delegateScenarios(): View;
         public delegate(event: string, fn: Function);
         public delegate(event: string, selector: string, fn: Function);
         public undelegateAll(): void;
@@ -51,7 +42,7 @@ declare module fivefold {
     }
     class ActionFuture<V extends fivefold.View> extends monapt.Future<V> {
     }
-    var actionFuture: (f: (promise: monapt.IFuturePromiseLike<fivefold.View>) => void) => ActionFuture<V>;
+    var actionFuture: (f: (promise: monapt.IFuturePromiseLike<View>) => void) => ActionFuture<V>;
     class Route {
         public pattern: string;
         public controller: string;
@@ -79,7 +70,7 @@ declare module fivefold {
         options: Object;
     }
     class RouteResolver {
-        public resolve(relativeURL: string, routes: monapt.Map<string, fivefold.Route>): monapt.Option<monapt.Tuple2<fivefold.Route, Object>>;
+        public resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Option<monapt.Tuple2<Route, Object>>;
         public parse(relativeURL: string): IRouteResolverParseResult;
         public match(matched: string, pattern: string): boolean;
     }
