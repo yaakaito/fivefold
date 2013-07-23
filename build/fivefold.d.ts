@@ -19,7 +19,7 @@ declare module fivefold {
         public className: string;
         public attributes: Object;
         public events: Object;
-        static create(): View;
+        static create(): any;
         public delegateEvents(): View;
         public delegate(event: string, fn: Function);
         public delegate(event: string, selector: string, fn: Function);

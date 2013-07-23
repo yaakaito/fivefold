@@ -35,8 +35,8 @@ export class View {
     attributes: Object = {};
     events: Object;
 
-    static create(): View {
-        var view: View = new this();
+    static create(): any {
+        var view = new this();
         ensureElement(view);
         view.delegateEvents();
         return view;
