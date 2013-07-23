@@ -118,7 +118,11 @@ var fivefold;
             this.undelegateAll();
             var events = new monapt.Map(this.events);
             events.mapValues(function (fn) {
-                return _this[fn];
+                if (isFunction(fn)) {
+                    return fn;
+                } else {
+                    return _this[fn];
+                }
             }).filter(function (key, fn) {
                 return isFunction(fn);
             }).map(function (event, fn) {
