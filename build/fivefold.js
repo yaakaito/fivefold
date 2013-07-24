@@ -185,9 +185,13 @@ var fivefold;
             this.layout.render();
             var actionFuture = this[method](options);
             actionFuture.onSuccess(function (view) {
-                view.render();
-                _this.layout.beforeDisplayContent();
-                _this.layout.display(view.$el);
+                try  {
+                    view.render();
+                    _this.layout.beforeDisplayContent();
+                    _this.layout.display(view.$el);
+                } catch (e) {
+                    console.error(e.toLocaleString());
+                }
             });
             actionFuture.onFailure(function (error) {
                 return console.log(error);

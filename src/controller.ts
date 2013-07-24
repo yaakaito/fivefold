@@ -7,9 +7,14 @@ export class Controller {
         this.layout.render();
         var actionFuture = <ActionFuture<View>>this[method](options);
         actionFuture.onSuccess(view => {
-            view.render();
-            this.layout.beforeDisplayContent();
-            this.layout.display(view.$el);
+            try {
+                view.render();
+                this.layout.beforeDisplayContent();
+                this.layout.display(view.$el);
+
+            } catch(e) {
+                console.error(e.toLocaleString()); // 
+            }
         });
         actionFuture.onFailure(error => console.log(error));
 
