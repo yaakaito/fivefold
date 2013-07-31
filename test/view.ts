@@ -2,6 +2,11 @@
 /// <reference path="../definitions/chai/chai.d.ts" />
 /// <reference path="../compiled/fivefold.ts" />
 
+
+interface EventTarget {
+    id: string;
+}
+
 module spec {
     chai.should();
 
@@ -38,5 +43,61 @@ module spec {
                 });
             });
         });
+    });
+
+
+    var receivedContext: any;
+    var receivedEvent: Event;
+
+    class MockView extends fivefold.View {
+        events = {
+            'click #function': function(e) {
+                receivedEvent = e;
+                receivedContext = this;
+            },
+            'click #methodName': 'callbackMethod'
+        }
+
+        callbackMethod(e: Event) {
+            receivedEvent = e;
+            receivedContext = this;
+        }
+
+        render(): MockView {
+            this.$el.append(
+                $('<button id="function"></button>'),
+                $('<button id="methodName"></button>')
+            )
+            return this;
+        }
+    }
+
+    describe('#delegateEvents', () => {
+
+        var view: MockView;
+
+        beforeEach(() => {
+            view = MockView.create().render().delegateEvents();
+            $(document.body).append(view.$el);
+        });
+
+
+        it('delegate allow methodName for callback', () => {
+            $('#methodName').trigger('click');
+            receivedEvent.target.id.should.equal('methodName');
+            receivedContext.should.eql(view);
+        });
+
+
+        it('delegate allow function for callback', () => {
+            $('#function').trigger('click');
+            receivedEvent.target.id.should.equal('function');
+            receivedContext.should.eql(view);
+        });
+
+        afterEach(() => {
+            view.$el.remove();
+        });
+
     });
 }

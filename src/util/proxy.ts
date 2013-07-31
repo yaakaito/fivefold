@@ -1,9 +1,9 @@
-function proxy(fn : (...args: any[]) => any, context: any, ...args: any[]): any {
+function proxy(fn : (...args: any[]) => any, context: any): any {
     if (!isFunction(fn)) {
         return undefined;
     }
 
     return function(){
-        return fn.apply( context || this, args);
+        return fn.apply( context || this, arguments);
     }
 }
