@@ -10,16 +10,12 @@ var fivefold;
         return typeof obj === "function" && !(obj instanceof RegExp);
     }
     function proxy(fn, context) {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 2); _i++) {
-            args[_i] = arguments[_i + 2];
-        }
         if (!isFunction(fn)) {
             return undefined;
         }
 
         return function () {
-            return fn.apply(context || this, args);
+            return fn.apply(context || this, Array.prototype.slice.call(arguments));
         };
     }
     var realizerPathSplitter = /\./;
