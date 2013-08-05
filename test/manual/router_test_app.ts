@@ -1,3 +1,4 @@
+/// <reference path="../../definitions/monapt/monapt.d.ts" />
 /// <reference path="../../compiled/fivefold.ts" />
 
 module TestApp {
@@ -75,17 +76,18 @@ module TestApp {
         }
     }
 
-    class SimpleResolver extends fivefold.RouteResolver {
-        parse(relativeURL: string): fivefold.IRouteResolverParseResult {
-            return {
-                pattern: relativeURL.slice(1),
-                options: {}
-            }
+    class SimpleResolver implements fivefold.RouteResolver {
+
+        resolve(relativeURL: string, routes: monapt.Map<string, fivefold.Route>): monapt.Future<fivefold.IRouteAndOptions> {
+            var url = relativeURL.slice(1);
+            return monapt.future(promise => {
+                routes.get(url).match({
+                    Some: route => promise.success({ route: route, options: {}}),
+                    None: () => promise.failure(new Error('Not found')),
+                });
+            });
         }
 
-        match(matchedPattern, routePattern): boolean {
-            return matchedPattern === routePattern;
-        }
     }
 
     class Application {

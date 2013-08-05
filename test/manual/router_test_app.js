@@ -91,23 +91,24 @@ var TestApp;
     })(fivefold.Controller);
     TestApp.SimpleController = SimpleController;
 
-    var SimpleResolver = (function (_super) {
-        __extends(SimpleResolver, _super);
+    var SimpleResolver = (function () {
         function SimpleResolver() {
-            _super.apply(this, arguments);
         }
-        SimpleResolver.prototype.parse = function (relativeURL) {
-            return {
-                pattern: relativeURL.slice(1),
-                options: {}
-            };
-        };
-
-        SimpleResolver.prototype.match = function (matchedPattern, routePattern) {
-            return matchedPattern === routePattern;
+        SimpleResolver.prototype.resolve = function (relativeURL, routes) {
+            var url = relativeURL.slice(1);
+            return monapt.future(function (promise) {
+                routes.get(url).match({
+                    Some: function (route) {
+                        return promise.success({ route: route, options: {} });
+                    },
+                    None: function () {
+                        return promise.failure(new Error('Not found'));
+                    }
+                });
+            });
         };
         return SimpleResolver;
-    })(fivefold.RouteResolver);
+    })();
 
     var Application = (function () {
         function Application() {
@@ -117,6 +118,12 @@ var TestApp;
                 match('/index', 'TestApp.Simple::index');
                 match('/hoge', 'TestApp.Simple::hoge');
                 match('/fuga', 'TestApp.Simple::fuga');
+            });
+
+            router.errorRoutes(function (match) {
+                match(fivefold.RouteError.NotFound, 'TestApp.Error::for404');
+                match(fivefold.RouteError.DispatchFailure, 'TestApp.Error::for503');
+                match('On offline', 'TestApp.Network::offline');
             });
         }
         return Application;

@@ -1,5 +1,3 @@
-
-
 export class Router {
 
     private dispatcher = new Dispatcher();
@@ -17,10 +15,11 @@ export class Router {
 
     private onHashChange() {
         var relativeURL: string = location.hash;
-        this.resolver.resolve(relativeURL, routeRepository.routesMap()).match({
-            Some: t => this.dispatcher.dispatch(t._1, t._2),
-            None: () => this.dispatcher.dispatchError(NotFound())
-        });
+        var resolve = this.resolver.resolve(relativeURL, routeRepository.routesMap());
+        resolve.onComplete(r => r.match({
+            Success: routeAndOptions => this.dispatcher.dispatch(routeAndOptions.route, routeAndOptions.options),
+            Failure: error => this.dispatcher.dispatchError(NotFound())
+        }));
     }
 
     routes(routes: (match: IRouteRegister) => void) { 
