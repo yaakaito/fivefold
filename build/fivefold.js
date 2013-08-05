@@ -295,33 +295,6 @@ var fivefold;
         repository.registerRoute(route);
     }
 
-    var RouteResolver = (function () {
-        function RouteResolver() {
-        }
-        RouteResolver.prototype.resolve = function (relativeURL, routes) {
-            var _this = this;
-            var r = this.parse(relativeURL);
-            return routes.find(function (k, v) {
-                return _this.match(r.pattern, k);
-            }).map(function (t) {
-                return monapt.Tuple2(t._2, r.options);
-            });
-        };
-
-        RouteResolver.prototype.parse = function (relativeURL) {
-            return {
-                options: {},
-                pattern: null
-            };
-        };
-
-        RouteResolver.prototype.match = function (matched, pattern) {
-            return false;
-        };
-        return RouteResolver;
-    })();
-    fivefold.RouteResolver = RouteResolver;
-
     var Router = (function () {
         function Router(resolver) {
             this.resolver = resolver;
@@ -341,13 +314,16 @@ var fivefold;
         Router.prototype.onHashChange = function () {
             var _this = this;
             var relativeURL = location.hash;
-            this.resolver.resolve(relativeURL, routeRepository.routesMap()).match({
-                Some: function (t) {
-                    return _this.dispatcher.dispatch(t._1, t._2);
-                },
-                None: function () {
-                    return _this.dispatcher.dispatchError(NotFound());
-                }
+            var resolve = this.resolver.resolve(relativeURL, routeRepository.routesMap());
+            resolve.onComplete(function (r) {
+                return r.match({
+                    Success: function (routeAndOptions) {
+                        return _this.dispatcher.dispatch(routeAndOptions.route, routeAndOptions.options);
+                    },
+                    Failure: function (error) {
+                        return _this.dispatcher.dispatchError(NotFound());
+                    }
+                });
             });
         };
 

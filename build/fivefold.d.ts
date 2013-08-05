@@ -65,14 +65,12 @@ declare module fivefold {
     interface IRouteMatcher {
         (matched: string, pattern: string): boolean;
     }
-    interface IRouteResolverParseResult {
-        pattern: string;
+    interface IRouteAndOptions {
+        route: Route;
         options: Object;
     }
-    class RouteResolver {
-        public resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Option<monapt.Tuple2<Route, Object>>;
-        public parse(relativeURL: string): IRouteResolverParseResult;
-        public match(matched: string, pattern: string): boolean;
+    interface RouteResolver {
+        resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Future<IRouteAndOptions>;
     }
     class Router {
         private resolver;

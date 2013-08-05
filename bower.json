@@ -1,12 +1,27 @@
 {
   "name": "fivehold",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
-    "monapt": "git://github.com/yaakaito/monapt.git#~0.1.0"
+    "monapt": "git://github.com/yaakaito/monapt.git#~0.2.0"
   },
   "devDependencies": {
     "jquery": "~2.0.2",
     "zepto": "~1.0.0",
     "appframework": "git@github.com:yaakaito/appframework.git#~2.0.0"
-  }
+  },
+  "main": [
+    "build/fivefold.d.ts",
+    "build/fivefold.js",
+    "build/fivefold.min.js"
+  ],
+  "ignore": [
+    "Gruntfile.coffee",
+    ".gitattriute",
+    ".gitignore",
+    "package.json",
+    "testem.json",
+    "definitions/",
+    "src/",
+    "test/"
+  ]
 }
