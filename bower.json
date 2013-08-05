@@ -1,5 +1,5 @@
 {
-  "name": "fivehold",
+  "name": "fivefold",
   "version": "0.1.0",
   "dependencies": {
     "monapt": "git://github.com/yaakaito/monapt.git#~0.2.0"
