@@ -1,3 +1,4 @@
+/*! fivefold v0.1.1 | MIT Licence | https://github.com/yaakaito/fivefold | (c) 2013 yaakaito.org  */
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }

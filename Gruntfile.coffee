@@ -45,24 +45,31 @@ module.exports = (grunt) ->
                 ]
                 dest: 'compiled/fivefold.ts'
 
-        copy:
-            js:
-                files: [
-                        expand: true
-                        cwd: 'compiled'
-                        src: 'fivefold.js'
-                        dest: 'build'
-                    ,
-                        expand: true
-                        cwd: 'compiled'
-                        src: 'fivefold.d.ts'
-                        dest: 'build'
+            dts:
+                src: [
+                    'etc/reference.d.ts'
+                    'compiled/fivefold.d.ts'
                 ]
+                dest: 'build/fivefold.d.ts'
+
+            licence:
+                src: [
+                    'etc/licence.js',
+                    'compiled/fivefold.js'
+                ]
+                dest: 'build/fivefold.js'
+
+            licenceMin:
+                src: [
+                    'etc/licence.js',
+                    'compiled/fivefold.min.js'
+                ]
+                dest: 'build/fivefold.min.js'
 
         uglify:
             min:
                 files:
-                    'build/fivefold.min.js': ['build/fivefold.js']
+                    'compiled/fivefold.min.js': ['compiled/fivefold.js']
         regarde:
             src:
                 files: ['src/**/*.*']
@@ -79,4 +86,4 @@ module.exports = (grunt) ->
 
     grunt.registerTask 'compile', ['concat:fivefold','typescript:compile', 'typescript:test']
     grunt.registerTask 'default', ['compile']
-    grunt.registerTask 'build', ['compile', 'copy:js', 'uglify']
+    grunt.registerTask 'build', ['compile', 'uglify', 'concat:dts', 'concat:licence', 'concat:licenceMin']
