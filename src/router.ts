@@ -31,19 +31,27 @@ export class Router {
     }
 }
 
-export class Dispatcher {
+// こことControllerに闇を押し込んだ
 
-    dispatch(route: Route, options: Object) {
+class Dispatcher {
+
+    dispatch(route: Route, options: Object);
+    dispatch(route: Route, error: Error);
+    dispatch(route: Route, optionsOrError: any) {
         controllerRepository.controllerForRouteTry(route).match({
-            Success: controller => controller.dispatch(route.method, options),
+            Success: controller => {
+                controller.dispatch(route.method, optionsOrError).onFailure(error => {
+                    this.dispatchError(error);    
+                });
+            },
             Failure: e => this.dispatchError(e)
         });
     }
 
-    dispatchError(error: Error) {
+    dispatchError(error: ActionError) {
         errorRouteRepository.routeForError(error).match({
-            Some: route => { this.dispatch(route, {}) },
-            None: () => { throw new Error('Route not found: ' + error.message) }
+            Some: route => { this.dispatch(route, error) },
+            None: () => { errorLog(new Error('Route not found: ' + error.message)) }
         });
     }
 }

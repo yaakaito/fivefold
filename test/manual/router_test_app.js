@@ -76,6 +76,14 @@ var TestApp;
             });
         };
 
+        SimpleController.prototype.fail = function () {
+            return fivefold.actionFuture(function (p) {
+                setTimeout(function () {
+                    p.failure(new fivefold.ActionError('AError', 'Errorrrrrrr'));
+                }, 1000);
+            });
+        };
+
         SimpleController.prototype.hoge = function () {
             return fivefold.actionFuture(function (p) {
                 p.success(SimpleView.createWithText('hoge'));
@@ -87,9 +95,38 @@ var TestApp;
                 p.success(SimpleView.createWithText('fuga'));
             });
         };
+
+        SimpleController.prototype.forError = function (error) {
+            return fivefold.actionFuture(function (p) {
+                p.success(SimpleView.createWithText(error.message));
+            });
+        };
         return SimpleController;
     })(fivefold.Controller);
     TestApp.SimpleController = SimpleController;
+
+    var ErrorController = (function (_super) {
+        __extends(ErrorController, _super);
+        function ErrorController() {
+            _super.apply(this, arguments);
+            this.layout = SimpleLayout.create();
+        }
+        ErrorController.prototype.for404 = function () {
+            return fivefold.actionFuture(function (p) {
+                p.success(SimpleView.createWithText('404 page'));
+            });
+        };
+
+        ErrorController.prototype.for503 = function () {
+            return fivefold.actionFuture(function (p) {
+                setTimeout(function () {
+                    p.failure(new fivefold.ActionError('AError', 'Errorrrrrrr'));
+                }, 1000);
+            });
+        };
+        return ErrorController;
+    })(fivefold.Controller);
+    TestApp.ErrorController = ErrorController;
 
     var SimpleResolver = (function () {
         function SimpleResolver() {
@@ -118,12 +155,13 @@ var TestApp;
                 match('/index', 'TestApp.Simple::index');
                 match('/hoge', 'TestApp.Simple::hoge');
                 match('/fuga', 'TestApp.Simple::fuga');
+                match('/fail', 'TestApp.Simple::fail');
             });
 
             router.errorRoutes(function (match) {
                 match(fivefold.RouteError.NotFound, 'TestApp.Error::for404');
                 match(fivefold.RouteError.DispatchFailure, 'TestApp.Error::for503');
-                match('On offline', 'TestApp.Network::offline');
+                match('AError', 'TestApp.Simple::forError');
             });
         }
         return Application;

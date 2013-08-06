@@ -63,6 +63,14 @@ module TestApp {
             });
         }
 
+        fail(): fivefold.ActionFuture {
+            return fivefold.actionFuture(p => {
+                setTimeout(() => {
+                    p.failure(new fivefold.ActionError('AError', 'Errorrrrrrr'));
+                }, 1000);
+            });
+        }
+
         hoge(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
                 p.success(SimpleView.createWithText('hoge'));
@@ -74,7 +82,33 @@ module TestApp {
                 p.success(SimpleView.createWithText('fuga'));
             });
         }
+
+
+        forError(error: Error): fivefold.ActionFuture {
+            return fivefold.actionFuture(p => {
+                p.success(SimpleView.createWithText(error.message));
+            });
+        }
     }
+
+    export class ErrorController extends fivefold.Controller {
+        layout = SimpleLayout.create();
+
+        for404(): fivefold.ActionFuture {
+            return fivefold.actionFuture(p => {
+                p.success(SimpleView.createWithText('404 page'));
+            });
+        }
+
+        for503(): fivefold.ActionFuture {
+            return fivefold.actionFuture(p => {
+                setTimeout(() => {
+                    p.failure(new fivefold.ActionError('AError', 'Errorrrrrrr'));
+                }, 1000);
+            });
+        }
+    }
+
 
     class SimpleResolver implements fivefold.RouteResolver {
 
@@ -98,12 +132,13 @@ module TestApp {
                 match('/index', 'TestApp.Simple::index');
                 match('/hoge', 'TestApp.Simple::hoge');
                 match('/fuga', 'TestApp.Simple::fuga');
+                match('/fail', 'TestApp.Simple::fail');
             });
 
             router.errorRoutes(match => {
                 match(fivefold.RouteError.NotFound, 'TestApp.Error::for404');
                 match(fivefold.RouteError.DispatchFailure, 'TestApp.Error::for503');
-                match('On offline', 'TestApp.Network::offline');
+                match('AError', 'TestApp.Simple::forError');
             });
         }
     }
