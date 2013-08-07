@@ -31,6 +31,7 @@ module.exports = (grunt) ->
                     'src/intro.ts'
                     'src/util/is-function.ts'
                     'src/util/proxy.ts'
+                    'src/util/log.ts'
                     'src/util/realizer.ts'
                     'src/error.ts'
                     'src/view.ts'

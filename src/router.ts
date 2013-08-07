@@ -31,11 +31,17 @@ export class Router {
     }
 }
 
-export class Dispatcher {
+// こことControllerに闇を押し込んだ
+
+class Dispatcher {
 
     dispatch(route: Route, options: Object) {
         controllerRepository.controllerForRouteTry(route).match({
-            Success: controller => controller.dispatch(route.method, options),
+            Success: controller => {
+                controller.dispatch(route.method, options).onFailure(error => {
+                    this.dispatchError(error);    
+                });
+            },
             Failure: e => this.dispatchError(e)
         });
     }
