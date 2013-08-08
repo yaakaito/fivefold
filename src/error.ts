@@ -3,5 +3,5 @@ export enum RouteError {
     DispatchFailure = -2
 }
 
-var NotFound = () => new Error('fivefold' + RouteError.NotFound);
-var DispatchFailure = () => new Error('fivefold' + RouteError.DispatchFailure);
+var NotFound = () => new ActionError('-1', '');
+var DispatchFailure = () => new ActionError('-2', '');

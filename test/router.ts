@@ -6,14 +6,14 @@ module spec {
     chai.should();
 
     class SuccessResolver implements fivefold.RouteResolver {
-        resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Future<IRouteAndOptions> {
+        resolve(relativeURL: string, routes: monapt.Map<string, fivefold.Route>): monapt.Future<fivefold.IRouteAndOptions> {
 
         }
     }
 
 
     class FailureResolver implements fivefold.RouteResolver {
-        resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Future<IRouteAndOptions> {
+        resolve(relativeURL: string, routes: monapt.Map<string, fivefold.Route>): monapt.Future<fivefold.IRouteAndOptions> {
             
         }
     }

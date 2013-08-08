@@ -22,8 +22,8 @@ var routeRepository = new RouteRepository();
 
 class ErrorRouteRepository extends RouteRepository {
 
-    routeForError(error: Error): monapt.Option<Route> {
-        return super.routesMap().get(error.message);
+    routeForError(error: ActionError): monapt.Option<Route> {
+        return super.routesMap().get(error.name);
     }
 
 }
@@ -62,7 +62,7 @@ function errorRouteRegisterFn(code: any, controllerAndMethod: string) {
     var comp = controllerAndMethod.split(routeSplitter);
     var route: Route = null;
     if (typeof code == 'number')
-        route = new Route('fivefold' + code, comp[0], comp[1]);
+        route = new Route('' + code, comp[0], comp[1]);
     else 
         route = new Route(code, comp[0], comp[1]);
     repository.registerRoute(route);
