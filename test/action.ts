@@ -21,7 +21,7 @@ module spec {
 
                 describe('#message', () => {
                     it('returns error message', () => {
-                        actionError.name.should.equal('File not found.');
+                        actionError.message.should.equal('File not found.');
                     });
                 });
             });
