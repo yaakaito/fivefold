@@ -19,6 +19,12 @@ var fivefold;
             return fn.apply(context || this, Array.prototype.slice.call(arguments));
         };
     }
+    fivefold.silent = false;
+
+    var errorLog = function (error) {
+        if (!fivefold.silent)
+            console.log(error.message);
+    };
     var realizerPathSplitter = /\./;
 
     var Realizer = (function () {
@@ -54,19 +60,6 @@ var fivefold;
         return Realizer;
     })();
     fivefold.Realizer = Realizer;
-    (function (RouteError) {
-        RouteError[RouteError["NotFound"] = -1] = "NotFound";
-
-        RouteError[RouteError["DispatchFailure"] = -2] = "DispatchFailure";
-    })(fivefold.RouteError || (fivefold.RouteError = {}));
-    var RouteError = fivefold.RouteError;
-
-    var NotFound = function () {
-        return new Error('fivefold' + RouteError.NotFound);
-    };
-    var DispatchFailure = function () {
-        return new Error('fivefold' + RouteError.DispatchFailure);
-    };
     var uniqId = 0;
     function viewUniqId() {
         return 'view' + uniqId++;
@@ -177,22 +170,33 @@ var fivefold;
         function Controller() {
             this.layout = defaultLayout;
         }
-        Controller.prototype.dispatch = function (method, options) {
+        Controller.prototype.dispatch = function (method, optionsOrError) {
             var _this = this;
             this.layout.render();
-            var actionFuture = this[method](options);
-            actionFuture.onSuccess(function (view) {
-                try  {
-                    view.render();
-                    _this.layout.beforeDisplayContent();
-                    _this.layout.display(view.$el);
-                } catch (e) {
-                    console.error(e.toLocaleString());
-                }
+            var promise = new monapt.Promise();
+
+            var action = this[method](optionsOrError);
+            action.onComplete(function (r) {
+                return r.match({
+                    Success: function (view) {
+                        try  {
+                            view.render();
+                            _this.layout.beforeDisplayContent();
+                            _this.layout.display(view.$el);
+                            promise.success(view);
+                        } catch (e) {
+                            errorLog(e);
+                            promise.failure(e);
+                        }
+                    },
+                    Failure: function (e) {
+                        promise.failure(e);
+                        errorLog(e);
+                    }
+                });
             });
-            actionFuture.onFailure(function (error) {
-                return console.log(error);
-            });
+
+            return promise.future();
         };
         return Controller;
     })();
@@ -236,6 +240,14 @@ var fivefold;
         });
     };
 
+    var ActionError = (function () {
+        function ActionError(name, message) {
+            this.name = name;
+            this.message = message;
+        }
+        return ActionError;
+    })();
+    fivefold.ActionError = ActionError;
     var Route = (function () {
         function Route(pattern, controller, method) {
             this.pattern = pattern;
@@ -268,7 +280,7 @@ var fivefold;
             _super.apply(this, arguments);
         }
         ErrorRouteRepository.prototype.routeForError = function (error) {
-            return _super.prototype.routesMap.call(this).get(error.message);
+            return _super.prototype.routesMap.call(this).get(error.name);
         };
         return ErrorRouteRepository;
     })(RouteRepository);
@@ -291,10 +303,23 @@ var fivefold;
         var comp = controllerAndMethod.split(routeSplitter);
         var route = null;
         if (typeof code == 'number')
-            route = new Route('fivefold' + code, comp[0], comp[1]); else
+            route = new Route('' + code, comp[0], comp[1]); else
             route = new Route(code, comp[0], comp[1]);
         repository.registerRoute(route);
     }
+    (function (RouteError) {
+        RouteError[RouteError["NotFound"] = -1] = "NotFound";
+
+        RouteError[RouteError["DispatchFailure"] = -2] = "DispatchFailure";
+    })(fivefold.RouteError || (fivefold.RouteError = {}));
+    var RouteError = fivefold.RouteError;
+
+    var NotFound = function () {
+        return new ActionError('-1', '');
+    };
+    var DispatchFailure = function () {
+        return new ActionError('-2', '');
+    };
 
     var Router = (function () {
         function Router(resolver) {
@@ -342,11 +367,13 @@ var fivefold;
     var Dispatcher = (function () {
         function Dispatcher() {
         }
-        Dispatcher.prototype.dispatch = function (route, options) {
+        Dispatcher.prototype.dispatch = function (route, optionsOrError) {
             var _this = this;
             controllerRepository.controllerForRouteTry(route).match({
                 Success: function (controller) {
-                    return controller.dispatch(route.method, options);
+                    controller.dispatch(route.method, optionsOrError).onFailure(function (error) {
+                        _this.dispatchError(error);
+                    });
                 },
                 Failure: function (e) {
                     return _this.dispatchError(e);
@@ -358,14 +385,13 @@ var fivefold;
             var _this = this;
             errorRouteRepository.routeForError(error).match({
                 Some: function (route) {
-                    _this.dispatch(route, {});
+                    _this.dispatch(route, error);
                 },
                 None: function () {
-                    throw new Error('Route not found: ' + error.message);
+                    errorLog(new Error('Route not found: ' + error.message));
                 }
             });
         };
         return Dispatcher;
     })();
-    fivefold.Dispatcher = Dispatcher;
 })(fivefold || (fivefold = {}));

@@ -2,6 +2,7 @@
 /// <reference path="../jquery/jquery.d.ts" />
 
 declare module fivefold {
+    var silent: boolean;
     class Realizer<T> {
         public prefix: string;
         public suffix: string;
@@ -9,10 +10,6 @@ declare module fivefold {
         private realize(pathOrName);
         public parsePathOrName(pathOrName: string): string[];
         public getClass(pathComponents: string[]): new() => Controller;
-    }
-    enum RouteError {
-        NotFound,
-        DispatchFailure,
     }
     class View {
         private cid;
@@ -38,7 +35,7 @@ declare module fivefold {
     }
     class Controller {
         public layout: Layout;
-        public dispatch(method: string, options: Object): void;
+        public dispatch(method: string, optionsOrError: any): monapt.Future<View>;
     }
     class ControllerRealizer extends Realizer<Controller> {
         public suffix: string;
@@ -46,6 +43,11 @@ declare module fivefold {
     class ActionFuture<V extends fivefold.View> extends monapt.Future<V> {
     }
     var actionFuture: (f: (promise: monapt.IFuturePromiseLike<View>) => void) => ActionFuture<V>;
+    class ActionError implements Error {
+        public name: string;
+        public message: string;
+        constructor(name: string, message: string);
+    }
     class Route {
         public pattern: string;
         public controller: string;
@@ -61,6 +63,10 @@ declare module fivefold {
     interface IErrorRouteRegister {
         (code: RouteError, controllerAndMethod: string);
         (errorMessage: string, controllerAndMethod: string);
+    }
+    enum RouteError {
+        NotFound,
+        DispatchFailure,
     }
     interface IRouteParser {
         (relativeURL: string): monapt.Option<monapt.Tuple2<string, Object>>;
@@ -83,9 +89,5 @@ declare module fivefold {
         private onHashChange();
         public routes(routes: (match: IRouteRegister) => void): void;
         public errorRoutes(routes: (match: IErrorRouteRegister) => void): void;
-    }
-    class Dispatcher {
-        public dispatch(route: Route, options: Object): void;
-        public dispatchError(error: Error): void;
     }
 }
