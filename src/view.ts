@@ -42,10 +42,13 @@ export class View {
         return view;
     }
 
-    delegateEvents(): View {
+    delegateEvents(events?: Object): View {
+        if (!(events || (events = this.events))) {
+            return this;
+        }
         this.undelegateAll();
-        var events = new monapt.Map<string, any>(this.events);
-        events.mapValues(fn => {
+        var evmap = new monapt.Map<string, any>(events);
+        evmap.mapValues(fn => {
             if (isFunction(fn)) {
                 return fn;
             }

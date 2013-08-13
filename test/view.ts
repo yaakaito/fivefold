@@ -76,28 +76,51 @@ module spec {
 
         var view: MockView;
 
-        beforeEach(() => {
-            view = MockView.create().render().delegateEvents();
-            $(document.body).append(view.$el);
+        context('when delegate with defaults', () => {
+            beforeEach(() => {
+                view = MockView.create().render().delegateEvents();
+                $(document.body).append(view.$el);
+            });
+
+
+            it('delegate allow methodName for callback', () => {
+                $('#methodName').trigger('click');
+                receivedEvent.target.id.should.equal('methodName');
+                receivedContext.should.eql(view);
+            });
+
+
+            it('delegate allow function for callback', () => {
+                $('#function').trigger('click');
+                receivedEvent.target.id.should.equal('function');
+                receivedContext.should.eql(view);
+            });
+
+            afterEach(() => {
+                view.$el.remove();
+            });
         });
 
+        context('when delegate with object', () => {
+            var delegated = false;
+            beforeEach(() => {
+                delegated = false;
+                view = MockView.create().render().delegateEvents({
+                    'click #function': () => {
+                        delegated = true;
+                    }    
+                });
+                $(document.body).append(view.$el);
+            });
 
-        it('delegate allow methodName for callback', () => {
-            $('#methodName').trigger('click');
-            receivedEvent.target.id.should.equal('methodName');
-            receivedContext.should.eql(view);
+            it('delegate allow function for callback', () => {
+                $('#function').trigger('click');
+                delegated.should.be.true;
+            });
+
+            afterEach(() => {
+                view.$el.remove();
+            });
         });
-
-
-        it('delegate allow function for callback', () => {
-            $('#function').trigger('click');
-            receivedEvent.target.id.should.equal('function');
-            receivedContext.should.eql(view);
-        });
-
-        afterEach(() => {
-            view.$el.remove();
-        });
-
     });
 }
