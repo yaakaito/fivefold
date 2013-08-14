@@ -22,6 +22,11 @@ export class Router {
         }));
     }
 
+    // 一旦これでいこう #12 #13
+    reload() {
+        this.onHashChange();
+    }
+
     routes(routes: (match: IRouteRegister) => void) { 
         routes(routeRegisterFn);
     }
