@@ -1,8 +1,8 @@
 {
   "name": "fivefold",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "dependencies": {
-    "monapt": "git://github.com/yaakaito/monapt.git#~0.2.0"
+    "monapt": "git://github.com/yaakaito/monapt.git#>=0.2.2"
   },
   "devDependencies": {
     "jquery": "~2.0.2",

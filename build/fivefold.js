@@ -103,11 +103,14 @@ var fivefold;
             return view;
         };
 
-        View.prototype.delegateEvents = function () {
+        View.prototype.delegateEvents = function (events) {
             var _this = this;
+            if (!(events || (events = this.events))) {
+                return this;
+            }
             this.undelegateAll();
-            var events = new monapt.Map(this.events);
-            events.mapValues(function (fn) {
+            var evmap = new monapt.Map(events);
+            evmap.mapValues(function (fn) {
                 if (isFunction(fn)) {
                     return fn;
                 } else {
@@ -351,6 +354,10 @@ var fivefold;
                     }
                 });
             });
+        };
+
+        Router.prototype.reload = function () {
+            this.onHashChange();
         };
 
         Router.prototype.routes = function (routes) {

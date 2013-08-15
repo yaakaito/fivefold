@@ -20,7 +20,7 @@ declare module fivefold {
         public attributes: Object;
         public events: Object;
         static create(): any;
-        public delegateEvents(): View;
+        public delegateEvents(events?: Object): View;
         public delegate(event: string, fn: Function);
         public delegate(event: string, selector: string, fn: Function);
         public undelegateAll(): void;
@@ -87,6 +87,7 @@ declare module fivefold {
         constructor(resolver: RouteResolver);
         private start();
         private onHashChange();
+        public reload(): void;
         public routes(routes: (match: IRouteRegister) => void): void;
         public errorRoutes(routes: (match: IErrorRouteRegister) => void): void;
     }
