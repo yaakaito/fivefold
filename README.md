@@ -7,7 +7,6 @@ Like `Backbone.View`.
 
 ```
 class IssueView extends fivefold.View {
-
     constructor(private issue: GithubIssue) {
         super({
             tagName: 'article',
