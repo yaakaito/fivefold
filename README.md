@@ -24,3 +24,5 @@ class IssueView extends fivefold.View {
     }
 }
 ```
+
+# fivefold.Router and Routes
