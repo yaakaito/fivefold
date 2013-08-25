@@ -5,7 +5,7 @@ Yet another JavaScript MVC
 
 Like `Backbone.View`.
 
-```
+```typescript
 class IssueView extends fivefold.View {
     constructor(private issue: GithubIssue) {
         super({
@@ -26,3 +26,11 @@ class IssueView extends fivefold.View {
 ```
 
 # fivefold.Router and Routes
+
+```typescript
+class IssueRoutes {
+    list(): fivefold.ActionFuture {
+        retrun fivefold.actionFuture(() => new IssueView());
+    }
+}
+```
