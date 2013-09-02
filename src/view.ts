@@ -34,6 +34,7 @@ export class View {
     className: string = '';
     attributes: Object = {};
     events: Object;
+    autoRender = true;
 
     static create(): any {
         var view = new this();

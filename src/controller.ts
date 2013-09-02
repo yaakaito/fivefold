@@ -15,7 +15,7 @@ export class Controller {
         action.onComplete(r => r.match({
             Success: view => {
                 try {
-                    view.render();
+                    if (view.autoRender) view.render();
                     this.layout.beforeDisplayContent();
                     this.layout.display(view.$el);
                     promise.success(view);
