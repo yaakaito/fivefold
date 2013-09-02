@@ -19,6 +19,7 @@ declare module fivefold {
         public className: string;
         public attributes: Object;
         public events: Object;
+        public autoRender: boolean;
         static create(): any;
         public delegateEvents(events?: Object): View;
         public delegate(event: string, fn: Function);

@@ -95,6 +95,7 @@ var fivefold;
             this.id = '';
             this.className = '';
             this.attributes = {};
+            this.autoRender = true;
         }
         View.create = function () {
             var view = new this();
@@ -183,7 +184,8 @@ var fivefold;
                 return r.match({
                     Success: function (view) {
                         try  {
-                            view.render();
+                            if (view.autoRender)
+                                view.render();
                             _this.layout.beforeDisplayContent();
                             _this.layout.display(view.$el);
                             promise.success(view);
