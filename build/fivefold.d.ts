@@ -36,14 +36,14 @@ declare module fivefold {
     }
     class Controller {
         public layout: Layout;
-        public dispatch(method: string, optionsOrError: any): monapt.Future<View>;
+        public dispatch(method: string, optionsOrError: any): monapt.Future<fivefold.View>;
     }
     class ControllerRealizer extends Realizer<Controller> {
         public suffix: string;
     }
     class ActionFuture<V extends fivefold.View> extends monapt.Future<V> {
     }
-    var actionFuture: (f: (promise: monapt.IFuturePromiseLike<View>) => void) => ActionFuture<V>;
+    var actionFuture: (f: (promise: monapt.IFuturePromiseLike<fivefold.View>) => void) => ActionFuture<V>;
     class ActionError implements Error {
         public name: string;
         public message: string;
@@ -69,6 +69,11 @@ declare module fivefold {
         NotFound,
         DispatchFailure,
     }
+    interface FivefoldHistoryStatic {
+        previous: (n?: number) => Route[];
+        current: () => Route;
+    }
+    var history: FivefoldHistoryStatic;
     interface IRouteParser {
         (relativeURL: string): monapt.Option<monapt.Tuple2<string, Object>>;
     }
@@ -80,7 +85,7 @@ declare module fivefold {
         options: Object;
     }
     interface RouteResolver {
-        resolve(relativeURL: string, routes: monapt.Map<string, Route>): monapt.Future<IRouteAndOptions>;
+        resolve(relativeURL: string, routes: monapt.Map<string, fivefold.Route>): monapt.Future<fivefold.IRouteAndOptions>;
     }
     class Router {
         private resolver;

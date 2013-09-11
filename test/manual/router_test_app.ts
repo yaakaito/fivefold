@@ -7,6 +7,14 @@ module TestApp {
 
         $content = $('#contents');
 
+        events = {
+            'click #history-current': () => console.log(fivefold.history.current()),
+            'click #history-dump':  () => console.log(fivefold.history.previous(100)), // FIXME
+            'click #history-previous':  () => console.log(fivefold.history.previous()[0]),
+            'click #history-previous-2':  () => console.log(fivefold.history.previous(2)),
+            'click #history-previous-10':  () => console.log(fivefold.history.previous(10)),
+        }
+
         constructor() {
             super();
             this.$content.html('');
@@ -55,8 +63,9 @@ module TestApp {
         }
     }
 
+    var layout = SimpleLayout.create();
     export class SimpleController extends fivefold.Controller {
-        layout = SimpleLayout.create();
+        layout = layout;
 
         index(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
@@ -95,7 +104,7 @@ module TestApp {
     }
 
     export class ErrorController extends fivefold.Controller {
-        layout = SimpleLayout.create();
+        layout = layout;
 
         for404(): fivefold.ActionFuture {
             return fivefold.actionFuture(p => {
