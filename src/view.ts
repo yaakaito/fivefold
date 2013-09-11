@@ -36,8 +36,7 @@ export class View {
     autoRender = true;
 
     events(): Object {
-        var event: Object = {};
-        return event;
+        return null;
     }
 
     static create(): any {
