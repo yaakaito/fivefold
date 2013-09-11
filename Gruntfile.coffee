@@ -30,6 +30,7 @@ module.exports = (grunt) ->
                 src: [
                     'src/intro.ts'
                     'src/util/is-function.ts'
+                    'src/util/is-JQuery-Object.ts'
                     'src/util/proxy.ts'
                     'src/util/log.ts'
                     'src/util/realizer.ts'

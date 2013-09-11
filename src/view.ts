@@ -45,7 +45,7 @@ export class View {
     autoRender = true;
 
     constructor(options: IViewCreateOptions = {}) {
-        this.$el = (options.$el instanceof jQuery) ? options.$el : null;
+        this.$el = isJQueryObject(options.$el) ? options.$el : null;
         this.tagName = options.tagName || 'div';
         this.id = options.id || '';
         this.className = options.className || '';
