@@ -36,11 +36,14 @@ export class View {
     events: Object;
     autoRender = true;
 
-    static create(): any {
-        var view = new this();
-        ensureElement(view);
-        view.delegateEvents();
-        return view;
+    constructor(params: any = {}) {
+        this.$el = (params.$el instanceof jQuery) ? params.$el : null;
+        this.tagName = params.tagName || 'div';
+        this.id = params.id || '';
+        this.className = params.className || '';
+        this.attributes = (typeof params.attributes == 'object') ? params.attributes : {};
+        ensureElement(this);
+        this.delegateEvents();
     }
 
     delegateEvents(events?: Object): View {
