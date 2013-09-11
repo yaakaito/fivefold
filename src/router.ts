@@ -46,8 +46,10 @@ class Dispatcher {
         controllerRepository.controllerForRouteTry(route).match({
             Success: controller => {
                 controller.dispatch(route.method, optionsOrError).onFailure(error => {
-                    this.dispatchError(error);    
+                    this.dispatchError(error);
                 });
+                //  履歴に追加 / また闇が・・・
+                histories.push(route);
             },
             Failure: e => this.dispatchError(e)
         });
