@@ -326,6 +326,20 @@ var fivefold;
         return new ActionError('-2', '');
     };
 
+    var histories = [];
+
+    fivefold.history = {
+        previous: function (n) {
+            if (typeof n === "undefined") { n = 1; }
+            if (histories.length <= 1)
+                return []; else
+                return histories.slice(0, histories.length - 2).slice(-n).reverse();
+        },
+        current: function () {
+            return histories[histories.length - 1];
+        }
+    };
+
     var Router = (function () {
         function Router(resolver) {
             this.resolver = resolver;
@@ -383,6 +397,8 @@ var fivefold;
                     controller.dispatch(route.method, optionsOrError).onFailure(function (error) {
                         _this.dispatchError(error);
                     });
+
+                    histories.push(route);
                 },
                 Failure: function (e) {
                     return _this.dispatchError(e);
