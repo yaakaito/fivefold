@@ -27,12 +27,15 @@ module TestApp {
 
     export class SimpleView extends fivefold.View {
         template = new SimpleTemplate();
-        events = {
-            'click .button' : 'showAlert'
-        };
         text = '';
 
         tagName = 'p';
+
+        events(): Object {
+            return {
+                'click .button' : 'showAlert'
+            };
+        }
 
         static createWithText(text) {
             var view: SimpleView = this.create();

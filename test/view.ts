@@ -50,13 +50,15 @@ module spec {
     var receivedEvent: Event;
 
     class MockView extends fivefold.View {
-        events = {
-            'click #function': function(e) {
-                receivedEvent = e;
-                receivedContext = this;
-            },
-            'click #methodName': 'callbackMethod'
-        }
+        events(): Object {
+            return {
+                'click #function': function(e) {
+                    receivedEvent = e;
+                    receivedContext = this;
+                },
+                'click #methodName': 'callbackMethod'
+            };
+         }
 
         callbackMethod(e: Event) {
             receivedEvent = e;
