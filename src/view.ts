@@ -33,8 +33,12 @@ export class View {
     id: string = '';
     className: string = '';
     attributes: Object = {};
-    events: Object;
     autoRender = true;
+
+    events(): Object {
+        var event: Object = {};
+        return event;
+    }
 
     static create(): any {
         var view = new this();
@@ -44,7 +48,7 @@ export class View {
     }
 
     delegateEvents(events?: Object): View {
-        if (!(events || (events = this.events))) {
+        if (!(events || (events = this.events()))) {
             return this;
         }
         this.undelegateAll();
