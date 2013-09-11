@@ -25,6 +25,14 @@ function ensureElement(view: View) {
 
 var eventSplitter = /^(\S+)\s*(.*)$/;
 
+export interface IViewCreateOptions {
+    $el?: JQuery;
+    tagName?: string;
+    id?: string;
+    className?: string;
+    attributes?: Object;
+}
+
 export class View {
 
     private cid = viewUniqId();
@@ -39,11 +47,14 @@ export class View {
         return null;
     }
 
-    static create(): any {
-        var view = new this();
-        ensureElement(view);
-        view.delegateEvents();
-        return view;
+    constructor(options: IViewCreateOptions = {}) {
+        this.$el = isJQueryObject(options.$el) ? options.$el : null;
+        this.tagName = options.tagName || 'div';
+        this.id = options.id || '';
+        this.className = options.className || '';
+        this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
+        ensureElement(this);
+        this.delegateEvents();
     }
 
     delegateEvents(events?: Object): View {

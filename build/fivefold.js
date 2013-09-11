@@ -10,6 +10,13 @@ var fivefold;
     function isFunction(obj) {
         return typeof obj === "function" && !(obj instanceof RegExp);
     }
+    function isJQueryObject(obj) {
+        if (typeof obj != 'object')
+            return false;
+
+        return (typeof obj.on == 'function' && typeof obj.off == 'function');
+    }
+
     function proxy(fn, context) {
         if (!isFunction(fn)) {
             return undefined;
@@ -88,7 +95,8 @@ var fivefold;
     var eventSplitter = /^(\S+)\s*(.*)$/;
 
     var View = (function () {
-        function View() {
+        function View(options) {
+            if (typeof options === "undefined") { options = {}; }
             this.cid = viewUniqId();
             this.$el = null;
             this.tagName = 'div';
@@ -96,17 +104,21 @@ var fivefold;
             this.className = '';
             this.attributes = {};
             this.autoRender = true;
+            this.$el = isJQueryObject(options.$el) ? options.$el : null;
+            this.tagName = options.tagName || 'div';
+            this.id = options.id || '';
+            this.className = options.className || '';
+            this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
+            ensureElement(this);
+            this.delegateEvents();
         }
-        View.create = function () {
-            var view = new this();
-            ensureElement(view);
-            view.delegateEvents();
-            return view;
+        View.prototype.events = function () {
+            return null;
         };
 
         View.prototype.delegateEvents = function (events) {
             var _this = this;
-            if (!(events || (events = this.events))) {
+            if (!(events || (events = this.events()))) {
                 return this;
             }
             this.undelegateAll();
@@ -143,6 +155,7 @@ var fivefold;
         return View;
     })();
     fivefold.View = View;
+
     var Layout = (function (_super) {
         __extends(Layout, _super);
         function Layout() {

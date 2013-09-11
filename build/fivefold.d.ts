@@ -11,6 +11,13 @@ declare module fivefold {
         public parsePathOrName(pathOrName: string): string[];
         public getClass(pathComponents: string[]): new() => Controller;
     }
+    interface IViewCreateOptions {
+        $el?: JQuery;
+        tagName?: string;
+        id?: string;
+        className?: string;
+        attributes?: Object;
+    }
     class View {
         private cid;
         public $el: JQuery;
@@ -18,9 +25,9 @@ declare module fivefold {
         public id: string;
         public className: string;
         public attributes: Object;
-        public events: Object;
         public autoRender: boolean;
-        static create(): any;
+        public events(): Object;
+        constructor(options?: IViewCreateOptions);
         public delegateEvents(events?: Object): View;
         public delegate(event: string, fn: Function);
         public delegate(event: string, selector: string, fn: Function);

@@ -14,7 +14,7 @@ module spec {
         describe('on create default', () => {
             var view: fivefold.View;
             beforeEach(() => {
-                view = fivefold.View.create();
+                view = new fivefold.View();
             });
 
             describe('#el', () => {
@@ -40,6 +40,26 @@ module spec {
 
                 it('not has any attributes', () => {
                     view.$el[0].attributes.length.should.be.empty;
+                });
+            });
+        });
+
+        describe('on create with parameters', () => {
+            describe('with className', () => {
+                it('can generate class name', () => {
+                    var testView = new fivefold.View({
+                        className : 'my-test-class'
+                    });
+                    testView.$el.get(0).className.should.equal('my-test-class');
+                });
+            });
+            describe('with $el', () => {
+                it('can generate $el directory and should abort any other params', () => {
+                    var testView = new fivefold.View({
+                        $el : $('<ul class="my-ul"></ul>'),
+                        className : 'another-class-name'
+                    });
+                    testView.$el.get(0).className.should.equal('my-ul');
                 });
             });
         });
@@ -80,7 +100,8 @@ module spec {
 
         context('when delegate with defaults', () => {
             beforeEach(() => {
-                view = MockView.create().render().delegateEvents();
+                view = new MockView();
+                view.render().delegateEvents();
                 $(document.body).append(view.$el);
             });
 
@@ -107,7 +128,8 @@ module spec {
             var delegated = false;
             beforeEach(() => {
                 delegated = false;
-                view = MockView.create().render().delegateEvents({
+                view = new MockView();
+                view.render().delegateEvents({
                     'click #function': () => {
                         delegated = true;
                     }    

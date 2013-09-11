@@ -7,12 +7,14 @@ module TestApp {
 
         $content = $('#contents');
 
-        events = {
-            'click #history-current': () => console.log(fivefold.history.current()),
-            'click #history-dump':  () => console.log(fivefold.history.previous(100)), // FIXME
-            'click #history-previous':  () => console.log(fivefold.history.previous()[0]),
-            'click #history-previous-2':  () => console.log(fivefold.history.previous(2)),
-            'click #history-previous-10':  () => console.log(fivefold.history.previous(10)),
+        events(): Object {
+            return {
+                'click #history-current': () => console.log(fivefold.history.current()),
+                'click #history-dump':  () => console.log(fivefold.history.previous(100)), // FIXME
+                'click #history-previous':  () => console.log(fivefold.history.previous()[0]),
+                'click #history-previous-2':  () => console.log(fivefold.history.previous(2)),
+                'click #history-previous-10':  () => console.log(fivefold.history.previous(10)),                
+            }
         }
 
         constructor() {
@@ -37,7 +39,14 @@ module TestApp {
         template = new SimpleTemplate();
         text = '';
 
-        tagName = 'p';
+        static createWithText(text) {
+            var view = new this({
+                tagName: 'p'
+            });
+            view.text = text;
+            return view;
+        }
+
 
         events(): Object {
             return {
@@ -45,11 +54,6 @@ module TestApp {
             };
         }
 
-        static createWithText(text) {
-            var view: SimpleView = this.create();
-            view.text = text;
-            return view;
-        }
 
         render(): SimpleView {
             this.$el.html(this.template.render({
@@ -63,7 +67,7 @@ module TestApp {
         }
     }
 
-    var layout = SimpleLayout.create();
+    var layout = new SimpleLayout();
     export class SimpleController extends fivefold.Controller {
         layout = layout;
 
