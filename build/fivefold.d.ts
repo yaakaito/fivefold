@@ -87,6 +87,9 @@ declare module fivefold {
     interface RouteResolver {
         resolve(relativeURL: string, routes: monapt.Map<string, fivefold.Route>): monapt.Future<fivefold.IRouteAndOptions>;
     }
+    interface IRouteListener {
+        (route?: Route);
+    }
     class Router {
         private resolver;
         private dispatcher;
@@ -96,5 +99,6 @@ declare module fivefold {
         public reload(): void;
         public routes(routes: (match: IRouteRegister) => void): void;
         public errorRoutes(routes: (match: IErrorRouteRegister) => void): void;
+        public listen(listener: IRouteListener): void;
     }
 }

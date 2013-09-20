@@ -149,6 +149,10 @@ module TestApp {
                 match(fivefold.RouteError.DispatchFailure, 'TestApp.Error::for503');
                 match('AError', 'TestApp.Simple::forError');
             });
+
+            router.listen((route?) => {
+                console.log(route);
+            });
         }
     }
 

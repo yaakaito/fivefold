@@ -340,6 +340,8 @@ var fivefold;
         }
     };
 
+    var routeListeners = [];
+
     var Router = (function () {
         function Router(resolver) {
             this.resolver = resolver;
@@ -383,6 +385,10 @@ var fivefold;
         Router.prototype.errorRoutes = function (routes) {
             routes(errorRouteRegisterFn);
         };
+
+        Router.prototype.listen = function (listener) {
+            routeListeners.push(listener);
+        };
         return Router;
     })();
     fivefold.Router = Router;
@@ -399,6 +405,9 @@ var fivefold;
                     });
 
                     histories.push(route);
+                    for (var i = 0, l = routeListeners.length; i < l; i++) {
+                        routeListeners[i](route);
+                    }
                 },
                 Failure: function (e) {
                     return _this.dispatchError(e);
