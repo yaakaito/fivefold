@@ -1,3 +1,10 @@
+export interface IRouteListener {
+    (route?: Route);
+}
+
+// ぐっ
+var routeListeners: IRouteListener[] = [];
+
 export class Router {
 
     private dispatcher = new Dispatcher();
@@ -34,6 +41,10 @@ export class Router {
     errorRoutes(routes: (match: IErrorRouteRegister) => void) {
         routes(errorRouteRegisterFn);
     }
+
+    listen(listener: IRouteListener) {
+        routeListeners.push(listener)
+    }
 }
 
 // こことControllerに闇を押し込んだ
@@ -50,6 +61,9 @@ class Dispatcher {
                 });
                 //  履歴に追加 / また闇が・・・
                 histories.push(route);
+                for (var i = 0, l = routeListeners.length; i < l; i++) {
+                    routeListeners[i](route);
+                }
             },
             Failure: e => this.dispatchError(e)
         });

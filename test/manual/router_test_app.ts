@@ -14,7 +14,7 @@ module TestApp {
                 'click #history-previous':  () => console.log(fivefold.history.previous()[0]),
                 'click #history-previous-2':  () => console.log(fivefold.history.previous(2)),
                 'click #history-previous-10':  () => console.log(fivefold.history.previous(10)),                
-            }
+            };
         }
 
         constructor() {
@@ -155,6 +155,10 @@ module TestApp {
                 match(fivefold.RouteError.NotFound, 'TestApp.Error::for404');
                 match(fivefold.RouteError.DispatchFailure, 'TestApp.Error::for503');
                 match('AError', 'TestApp.Simple::forError');
+            });
+
+            router.listen((route?) => {
+                console.log(route);
             });
         }
     }
