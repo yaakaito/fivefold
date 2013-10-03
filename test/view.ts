@@ -70,6 +70,11 @@ module spec {
     var receivedEvent: Event;
 
     class MockView extends fivefold.View {
+
+        constructor(delegate: boolean = true) {
+            super({delegate: delegate});
+        }
+
         events(): Object {
             return {
                 'click #function': function(e) {
@@ -97,6 +102,11 @@ module spec {
     describe('#delegateEvents', () => {
 
         var view: MockView;
+
+        beforeEach(() => {
+            receivedContext = null;
+            receivedEvent = null;
+        });
 
         context('when delegate with defaults', () => {
             beforeEach(() => {
@@ -146,5 +156,22 @@ module spec {
                 view.$el.remove();
             });
         });
+
+        context('with non delegate option', () => {
+            beforeEach(() => {
+                view = new MockView(false);
+                $(document.body).append(view.$el);
+            });
+
+            it('not delegate', () => {
+                $('#methodName').trigger('click');
+                chai.expect(receivedEvent).to.equal(null);
+            });
+
+            afterEach(() => {
+                view.$el.remove();    
+            });
+        });
+
     });
 }
