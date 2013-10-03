@@ -3,10 +3,19 @@ function viewUniqId(): string {
     return 'view' + uniqId++;
 }
 
-function ensureElement(view: View) {
+function ensureElement(view: View, selector: string) {
     if (view.$el) {
         return ;
     }
+
+    var $el: JQuery = null;
+    if (selector) {
+        $el = $(selector);
+    }
+    else {
+        $el = $('<' + view.tagName + '>');
+    }
+
     var attributes = {};
     for (var key in view.attributes) {
         attributes[key] = view.attributes[key];
@@ -19,8 +28,8 @@ function ensureElement(view: View) {
     if (view.className) {
         attributes['class'] = view.className;
     }
-        
-    view.$el =  $('<' + view.tagName + '>').attr(attributes);
+
+    view.$el = $el.attr(attributes);
 }
 
 var eventSplitter = /^(\S+)\s*(.*)$/;
@@ -28,6 +37,7 @@ var eventSplitter = /^(\S+)\s*(.*)$/;
 export interface IViewCreateOptions {
     $el?: JQuery;
     tagName?: string;
+    selector?: string;
     id?: string;
     className?: string;
     attributes?: Object;
@@ -50,13 +60,15 @@ export class View {
 
     constructor(options: IViewCreateOptions = {}) {
         var delegate = options.delegate == null ? true : options.delegate;
+        var selector = options.selector;
 
         this.$el = isJQueryObject(options.$el) ? options.$el : null;
         this.tagName = options.tagName || 'div';
         this.id = options.id || '';
         this.className = options.className || '';
         this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
-        ensureElement(this);
+        ensureElement(this, selector);
+
         if (delegate) {
             this.delegateEvents();
         }

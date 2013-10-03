@@ -62,7 +62,32 @@ module spec {
                     testView.$el.get(0).className.should.equal('my-ul');
                 });
             });
+
+            describe('with selector', () => {
+                var $target = $('<div id="hoge">text</div>');
+                var view: fivefold.View;
+
+                beforeEach(() => {
+                    $(document.body).append($target);
+                    view = new fivefold.View({
+                        selector: '#hoge',
+                        className: 'fuga piyo'
+                    });
+                });
+
+                it('generate from selected elements', () => {
+                    view.$el.text().should.equal('text');
+                    view.$el.attr('id').should.equal('hoge');
+                    view.$el.hasClass('fuga').should.be.true;
+                    view.$el.hasClass('piyo').should.be.true;
+                });
+
+                afterEach(() => {
+                    $target.remove();
+                })
+            });
         });
+
     });
 
 
