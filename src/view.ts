@@ -31,6 +31,7 @@ export interface IViewCreateOptions {
     id?: string;
     className?: string;
     attributes?: Object;
+    delegate?: boolean;
 }
 
 export class View {
@@ -48,13 +49,17 @@ export class View {
     }
 
     constructor(options: IViewCreateOptions = {}) {
+        var delegate = options.delegate == null ? true : options.delegate;
+
         this.$el = isJQueryObject(options.$el) ? options.$el : null;
         this.tagName = options.tagName || 'div';
         this.id = options.id || '';
         this.className = options.className || '';
         this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
         ensureElement(this);
-        this.delegateEvents();
+        if (delegate) {
+            this.delegateEvents();
+        }
     }
 
     delegateEvents(events?: Object): View {

@@ -104,13 +104,17 @@ var fivefold;
             this.className = '';
             this.attributes = {};
             this.autoRender = true;
+            var delegate = options.delegate == null ? true : options.delegate;
+
             this.$el = isJQueryObject(options.$el) ? options.$el : null;
             this.tagName = options.tagName || 'div';
             this.id = options.id || '';
             this.className = options.className || '';
             this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
             ensureElement(this);
-            this.delegateEvents();
+            if (delegate) {
+                this.delegateEvents();
+            }
         }
         View.prototype.events = function () {
             return null;

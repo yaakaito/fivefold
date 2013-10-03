@@ -17,6 +17,7 @@ declare module fivefold {
         id?: string;
         className?: string;
         attributes?: Object;
+        delegate?: boolean;
     }
     class View {
         private cid;
