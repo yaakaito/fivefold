@@ -72,10 +72,18 @@ var fivefold;
         return 'view' + uniqId++;
     }
 
-    function ensureElement(view) {
+    function ensureElement(view, selector) {
         if (view.$el) {
             return;
         }
+
+        var $el = null;
+        if (selector) {
+            $el = $(selector);
+        } else {
+            $el = $('<' + view.tagName + '>');
+        }
+
         var attributes = {};
         for (var key in view.attributes) {
             attributes[key] = view.attributes[key];
@@ -89,7 +97,7 @@ var fivefold;
             attributes['class'] = view.className;
         }
 
-        view.$el = $('<' + view.tagName + '>').attr(attributes);
+        view.$el = $el.attr(attributes);
     }
 
     var eventSplitter = /^(\S+)\s*(.*)$/;
@@ -105,13 +113,15 @@ var fivefold;
             this.attributes = {};
             this.autoRender = true;
             var delegate = options.delegate == null ? true : options.delegate;
+            var selector = options.selector;
 
             this.$el = isJQueryObject(options.$el) ? options.$el : null;
             this.tagName = options.tagName || 'div';
             this.id = options.id || '';
             this.className = options.className || '';
             this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
-            ensureElement(this);
+            ensureElement(this, selector);
+
             if (delegate) {
                 this.delegateEvents();
             }
@@ -167,13 +177,6 @@ var fivefold;
             this.$el = $(document.body);
             this.$content = $(document.body);
         }
-        Layout.create = function () {
-            var layout = new this();
-            ensureElement(layout);
-            layout.delegateEvents();
-            return layout;
-        };
-
         Layout.prototype.beforeDisplayContent = function () {
             ;
         };

@@ -14,6 +14,7 @@ declare module fivefold {
     interface IViewCreateOptions {
         $el?: JQuery;
         tagName?: string;
+        selector?: string;
         id?: string;
         className?: string;
         attributes?: Object;
@@ -38,7 +39,6 @@ declare module fivefold {
     class Layout extends View {
         public $el: JQuery;
         public $content: JQuery;
-        static create(): Layout;
         public beforeDisplayContent(): void;
         public display(elem: JQuery): void;
     }
