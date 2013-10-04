@@ -15,6 +15,7 @@ declare module fivefold {
         $el?: JQuery;
         tagName?: string;
         selector?: string;
+        context?: JQuery;
         id?: string;
         className?: string;
         attributes?: Object;

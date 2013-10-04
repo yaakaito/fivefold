@@ -3,14 +3,14 @@ function viewUniqId(): string {
     return 'view' + uniqId++;
 }
 
-function ensureElement(view: View, selector: string) {
+function ensureElement(view: View, selector: string, context: JQuery) {
     if (view.$el) {
         return ;
     }
 
     var $el: JQuery = null;
     if (selector) {
-        $el = $(selector);
+        $el = $(selector, context);
     }
     else {
         $el = $('<' + view.tagName + '>');
@@ -38,6 +38,7 @@ export interface IViewCreateOptions {
     $el?: JQuery;
     tagName?: string;
     selector?: string;
+    context?: JQuery;
     id?: string;
     className?: string;
     attributes?: Object;
@@ -61,13 +62,14 @@ export class View {
     constructor(options: IViewCreateOptions = {}) {
         var delegate = options.delegate == null ? true : options.delegate;
         var selector = options.selector;
+        var context  = options.context;
 
         this.$el = isJQueryObject(options.$el) ? options.$el : null;
         this.tagName = options.tagName || 'div';
         this.id = options.id || '';
         this.className = options.className || '';
         this.attributes = (typeof options.attributes == 'object') ? options.attributes : {};
-        ensureElement(this, selector);
+        ensureElement(this, selector, context);
 
         if (delegate) {
             this.delegateEvents();
