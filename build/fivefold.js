@@ -427,7 +427,7 @@ var fivefold;
 
                     histories.push(route);
                     for (var i = 0, l = routeListeners.length; i < l; i++) {
-                        routeListeners[i](route);
+                        routeListeners[i](route, optionsOrError);
                     }
                 },
                 Failure: function (e) {

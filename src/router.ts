@@ -1,5 +1,5 @@
 export interface IRouteListener {
-    (route?: Route);
+    (route?: Route, optionsOrError?: any);
 }
 
 // ぐっ
@@ -62,7 +62,7 @@ class Dispatcher {
                 //  履歴に追加 / また闇が・・・
                 histories.push(route);
                 for (var i = 0, l = routeListeners.length; i < l; i++) {
-                    routeListeners[i](route);
+                    routeListeners[i](route, optionsOrError);
                 }
             },
             Failure: e => this.dispatchError(e)
