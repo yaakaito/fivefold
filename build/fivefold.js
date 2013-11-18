@@ -364,19 +364,21 @@ var fivefold;
     var routeListeners = [];
 
     var Router = (function () {
-        function Router(resolver) {
+        function Router(resolver, force) {
+            if (typeof force === "undefined") { force = true; }
             this.resolver = resolver;
             this.dispatcher = new Dispatcher();
-            this.start();
+            this.start(force);
         }
-        Router.prototype.start = function () {
+        Router.prototype.start = function (force) {
             var _this = this;
             window.onhashchange = function (event) {
                 _this.onHashChange();
             };
-            setTimeout(function () {
-                return _this.onHashChange();
-            }, 0);
+            if (force)
+                setTimeout(function () {
+                    return _this.onHashChange();
+                }, 0);
         };
 
         Router.prototype.onHashChange = function () {

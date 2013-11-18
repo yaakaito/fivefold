@@ -102,8 +102,8 @@ declare module fivefold {
     class Router {
         private resolver;
         private dispatcher;
-        constructor(resolver: RouteResolver);
-        private start();
+        constructor(resolver: RouteResolver, force?: boolean);
+        private start(force);
         private onHashChange();
         public reload(): void;
         public routes(routes: (match: IRouteRegister) => void): void;

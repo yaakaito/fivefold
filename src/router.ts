@@ -9,15 +9,15 @@ export class Router {
 
     private dispatcher = new Dispatcher();
 
-    constructor(private resolver: RouteResolver) {
-        this.start();
+    constructor(private resolver: RouteResolver, force: boolean = true) {
+        this.start(force);
     }
 
-    private start() {
+    private start(force) {
         window.onhashchange = (event: Object) => {
             this.onHashChange();
         }
-        setTimeout(() => this.onHashChange(), 0);
+        if (force) setTimeout(() => this.onHashChange(), 0);
     }
 
     private onHashChange() {
