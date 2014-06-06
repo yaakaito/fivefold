@@ -100,7 +100,12 @@ export class View {
     delegate(event: string, selector:string, fn: Function);
     delegate(event: string, fnOrSelector: any, fn?: any) {
         var evt = event + '.ff' + this.cid;
-        this.$el.on.call(this.$el, evt, fnOrSelector, fn);
+        if (window['Zepto'] && $.isFunction(fn)) {
+            this.$el.find.call(this.$el, fnOrSelector).on(evt, fn);
+        }
+        else {
+            this.$el.on.call(this.$el, evt, fnOrSelector, fn);
+        }
     }
 
     undelegateAll() {

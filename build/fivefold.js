@@ -157,7 +157,11 @@ var fivefold;
 
         View.prototype.delegate = function (event, fnOrSelector, fn) {
             var evt = event + '.ff' + this.cid;
-            this.$el.on.call(this.$el, evt, fnOrSelector, fn);
+            if (window['Zepto'] && $.isFunction(fn)) {
+                this.$el.find.call(this.$el, fnOrSelector).on(evt, fn);
+            } else {
+                this.$el.on.call(this.$el, evt, fnOrSelector, fn);
+            }
         };
 
         View.prototype.undelegateAll = function () {
