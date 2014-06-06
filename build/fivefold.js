@@ -169,7 +169,7 @@ var fivefold;
         View.prototype.undelegateAll = function () {
             var _this = this;
             this.$el.off('.ff' + this.cid);
-            $.each(this._selectors, function (selector) {
+            $.each(this._selectors, function (i, selector) {
                 return _this.$el.find(selector).off('.ff' + _this.cid);
             });
             this._selectors = [];
