@@ -14,9 +14,9 @@ export class Router {
     }
 
     private start(force) {
-        window.onhashchange = (event: Object) => {
+        window.addEventListener('hashchange', (event: Object) => {
             this.onHashChange();
-        }
+        });
         if (force) setTimeout(() => this.onHashChange(), 0);
     }
 
