@@ -106,7 +106,7 @@ export class View {
 
     undelegateAll() {
         this.$el.off('.ff' + this.cid);
-        $.each(this._selectors, (i, selector) => this.$el.find(selector).off('.ff' + this.cid));
+        $.each(this._selectors, selector => this.$el.find(selector).off('.ff' + this.cid));
         this._selectors = [];
     }
 
