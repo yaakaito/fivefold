@@ -48,7 +48,6 @@ export interface IViewCreateOptions {
 export class View {
 
     private cid = viewUniqId();
-    private _selectors = []; // for Zepto
     $el: JQuery = null;
     tagName: string = 'div';
     id: string = '';
@@ -106,8 +105,6 @@ export class View {
 
     undelegateAll() {
         this.$el.off('.ff' + this.cid);
-        $.each(this._selectors, selector => this.$el.find(selector).off('.ff' + this.cid));
-        this._selectors = [];
     }
 
     render(): View {

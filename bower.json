@@ -1,6 +1,6 @@
 {
   "name": "fivefold",
-  "version": "0.4.0",
+  "version": "0.3.7",
   "dependencies": {
     "monapt": "git://github.com/yaakaito/monapt.git#>=0.2.3"
   },

@@ -23,7 +23,6 @@ declare module fivefold {
     }
     class View {
         private cid;
-        private _selectors;
         public $el: JQuery;
         public tagName: string;
         public id: string;

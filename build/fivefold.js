@@ -106,7 +106,6 @@ var fivefold;
         function View(options) {
             if (typeof options === "undefined") { options = {}; }
             this.cid = viewUniqId();
-            this._selectors = [];
             this.$el = null;
             this.tagName = 'div';
             this.id = '';
@@ -159,7 +158,6 @@ var fivefold;
         View.prototype.delegate = function (event, fnOrSelector, fn) {
             var evt = event + '.ff' + this.cid;
             if (window['Zepto'] && $.isFunction(fn)) {
-                this._selectors.push(fnOrSelector);
                 this.$el.find.call(this.$el, fnOrSelector).on(evt, fn);
             } else {
                 this.$el.on.call(this.$el, evt, fnOrSelector, fn);
@@ -167,12 +165,7 @@ var fivefold;
         };
 
         View.prototype.undelegateAll = function () {
-            var _this = this;
             this.$el.off('.ff' + this.cid);
-            $.each(this._selectors, function (selector) {
-                return _this.$el.find(selector).off('.ff' + _this.cid);
-            });
-            this._selectors = [];
         };
 
         View.prototype.render = function () {
