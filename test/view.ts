@@ -22,10 +22,8 @@ module spec {
                     view.$el.should.not.be.null;
                 });
 
-                it('is like jQuery object', () => {
-                    view.$el.on.should.instanceof(Function);
-                    view.$el.off.should.instanceof(Function);
-                    view.$el.find.should.instanceof(Function);
+                it('is jQuery object', () => {
+                    view.$el.should.instanceof(jQuery);
                 });
 
                 it('tagName is `div` on deault', () => {
