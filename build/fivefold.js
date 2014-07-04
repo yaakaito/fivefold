@@ -157,11 +157,7 @@ var fivefold;
 
         View.prototype.delegate = function (event, fnOrSelector, fn) {
             var evt = event + '.ff' + this.cid;
-            if (window['Zepto'] && $.isFunction(fn)) {
-                this.$el.find.call(this.$el, fnOrSelector).on(evt, fn);
-            } else {
-                this.$el.on.call(this.$el, evt, fnOrSelector, fn);
-            }
+            this.$el.on.call(this.$el, evt, fnOrSelector, fn);
         };
 
         View.prototype.undelegateAll = function () {
@@ -376,9 +372,9 @@ var fivefold;
         }
         Router.prototype.start = function (force) {
             var _this = this;
-            window.onhashchange = function (event) {
+            window.addEventListener('hashchange', function (event) {
                 _this.onHashChange();
-            };
+            });
             if (force)
                 setTimeout(function () {
                     return _this.onHashChange();
@@ -395,7 +391,7 @@ var fivefold;
                         return _this.dispatcher.dispatch(routeAndOptions.route, routeAndOptions.options);
                     },
                     Failure: function (error) {
-                        return _this.dispatcher.dispatchError(NotFound());
+                        return _this.dispatcher.dispatchError(error || NotFound());
                     }
                 });
             });

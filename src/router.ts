@@ -25,7 +25,7 @@ export class Router {
         var resolve = this.resolver.resolve(relativeURL, routeRepository.routesMap());
         resolve.onComplete(r => r.match({
             Success: routeAndOptions => this.dispatcher.dispatch(routeAndOptions.route, routeAndOptions.options),
-            Failure: error => this.dispatcher.dispatchError(NotFound())
+            Failure: error => this.dispatcher.dispatchError(error || NotFound())
         }));
     }
 
