@@ -19,19 +19,24 @@ export class Controller {
                     this.layout.beforeDisplayContent();
                     this.layout.display(view.$el);
                     promise.success(view);
+                    this.after();
                 } catch(e) {
                     errorLog(e);
                     promise.failure(e);
+                    this.after();
                 }
             },
             Failure: e => {
                 promise.failure(e);
                 errorLog(e);
+                this.after();
             }
         }));
 
         return promise.future();
     }
+
+    after() {}
 }
 
 class ControllerRepository {
